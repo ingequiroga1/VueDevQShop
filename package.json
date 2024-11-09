@@ -13,10 +13,11 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@supabase/supabase-js": "^2.46.1",
+    "html2pdf.js": "^0.10.2",
     "jspdf": "^2.5.2",
-    "pdfjs-dist": "^2.6.347",
     "vue": "^3.5.12",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "vue3-print-nb": "^0.1.4"
   },
   "devDependencies": {
     "@types/vue": "^2.0.0",

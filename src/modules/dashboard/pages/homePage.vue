@@ -152,20 +152,17 @@
         </div>
      </div>
      </div>
-     <modal-pdf v-if="showModalPdf" @close="showModalPdf=false" />
 </template>
 
 <script setup lang="ts">
 import {ref,reactive,computed} from 'vue';
 import {Producto} from '../../../interfaces/Producto.ts';
-import ModalPdf from '../components/modalPdf.vue'
-
+import generarPdf from '../../../helpers/generarPdfHelper.ts'
 
 const barcodeInput = ref('');
 const isOpen = ref(false);
 const monto = ref(0);
 const esGenerada = ref(false);
-const showModalPdf = ref(false);
 
 const productos = reactive<Producto[]>([]);
 
@@ -253,11 +250,10 @@ const generarVenta = () => {
 }
 
 const imprimirPdf = () =>{
-    showModalPdf.value = true;
+    generarPdf();
 }
 
 const terminar = () =>{
-    console.log('terminar');
     //productos.value = [];
     isOpen.value = false;
     window.location.reload();
