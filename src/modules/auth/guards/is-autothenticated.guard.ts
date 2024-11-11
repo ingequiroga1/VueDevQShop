@@ -1,6 +1,6 @@
 
 import { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteLocationNormalizedLoadedGeneric } from "vue-router";
-import { getCurrentUser} from "../../../services/supabaseClient";
+import { getCurrentUser} from "../../../services/auth/authService.ts";
 // const isAuthenticatedGuard = (to:RouteLocationNormalizedGeneric,
 //     next: NavigationGuardNext) => {
 //         const userId = localStorage.getItem('userId');

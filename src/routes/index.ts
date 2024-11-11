@@ -3,7 +3,7 @@ import { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteLocationNorma
 import NotFound404 from "../modules/common/NotFound404.vue";
 import LoginPage from "../modules/auth/pages/loginPage.vue";
 import ConfirmacionPage from "../modules/auth/pages/confirmacionPage.vue";
-import { getCurrentUser} from "../services/supabaseClient";
+import { getCurrentUser} from "../services/auth/authService.ts";
 import  isAuthenticatedGuard  from "../modules/auth/guards/is-autothenticated.guard";
 
 const router = createRouter({

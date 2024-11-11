@@ -1,4 +1,11 @@
 <template>
+  <Alert 
+    v-if="showAlert" 
+    :type="alertType" 
+    :message="alertMessage" 
+    dismissible 
+    @close="showAlert = false"
+  />
     <h1 class="text-2xl font-semibold mb-4">Login</h1>
       <form @submit.prevent="submitForm">
         <!-- Username Input -->
@@ -38,9 +45,6 @@
       <div class="mt-6 text-blue-500 text-center">
         <RouterLink :to="{name: 'register'}" class="hover:underline">Registrarse</RouterLink>
       </div>
-      <div>
-        <p v-if="authError">{{ authError }}</p>
-      </div>
     </template>
 
 
@@ -49,7 +53,8 @@
 
     import { ref,computed } from 'vue';
     import { useRouter } from "vue-router";
-    import {signInWithEmail} from '../../../services/supabaseClient.ts'
+    import {signInWithEmail} from '../../../services/auth/authService.ts'
+    import Alert from '../../common/components/alertComponent.vue'
 
     //Definimos los tipos para el estado y la respuesta de autenticacion
     interface AuthResponse {
@@ -61,14 +66,16 @@
     
     const email = ref<string>('');
     const password = ref<string>('');
-    const authError = ref<string | null>(null);
     const showPassword = ref(false);
+
+    const showAlert =ref(false);
+    const alertMessage = ref('');
+    const alertType = ref<'success'|'error'|'warning'|'info'>('info');
 
     const passFieldType = computed(() => (showPassword.value ? 'text' : 'password'));
 
     function togglePaswordVisibility() {
       showPassword.value = !showPassword.value;
-      
     }
 
    function submitForm(){
@@ -79,12 +86,13 @@
       
       const response: AuthResponse = await signInWithEmail(email.value, password.value);
       if (response.error) {
-        authError.value = response.error.message;
+        alertType.value = 'error';
+        showAlert.value = true;
+        alertMessage.value = response.error.message;
       }else{
         // localStorage.setItem('user',response.data?.user);
         // localStorage.setItem('userId',response.data?.user.email);
         // //user.value = response.data?.user;
-        authError.value = null;
         const lastPath = localStorage.getItem('lastPath') ?? '/dashboard';
         router.replace(lastPath);
       }

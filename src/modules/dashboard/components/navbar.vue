@@ -15,7 +15,7 @@
     </header>
 </template>
 <script setup lang="ts">
-import {  signOut } from "../../../services/supabaseClient.ts";
+import {  signOut } from "../../../services/auth/authService.ts";
 
 const logout = async() =>{
   const error = signOut();
