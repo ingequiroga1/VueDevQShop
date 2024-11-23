@@ -1,5 +1,5 @@
 <template>
-    <div v-if="visible"
+    <div 
     :class="[
         'p-4 rounded-md flex items-center justify-between',
         alertClasses[type] || alertClasses['info']
@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref,computed} from 'vue';
+import {computed} from 'vue';
 
 
 type AlertType = 'success' | 'error' | 'warning' | 'info'; 
@@ -34,7 +34,9 @@ defineProps<{
   dismissible?: boolean;
 }>();
 
-const visible = ref(true);
+
+const emit = defineEmits(['close']);
+
 
 const alertClasses = computed(() => ({
   success: 'bg-green-100 text-green-800 border border-green-300',
@@ -51,7 +53,7 @@ const iconClasses = computed(() => ({
 }));
 
 const closeAlert = () => {
-  visible.value = false;
+  emit('close');
 };
 
 </script>

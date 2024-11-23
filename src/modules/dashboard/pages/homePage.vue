@@ -47,10 +47,10 @@
                 </thead>
                 <tbody id="productosTabla">
                     <!-- Filas de productos se agregarán aquí dinámicamente -->
-                     <tr v-for="producto in productos" :key="producto.id">
+                     <tr v-for="producto in productos" :key="producto.producto_id">
                         <td class="text-center">{{ producto.cantidad }}</td>
                         <td class="text-center">{{ producto.nombre }}</td>
-                        <td class="text-center">${{ producto.precio.toFixed(2) }}</td>
+                        <td class="text-center">${{ producto.precio_venta.toFixed(2) }}</td>
                         <td class="text-center">${{ producto.subtotal.toFixed(2) }}</td>
                         <td class="text-center">
                             <button 
@@ -155,16 +155,18 @@
 </template>
 
 <script setup lang="ts">
-import {ref,reactive,computed} from 'vue';
-import {Producto} from '../../../interfaces/Producto.ts';
+import {ref,reactive,computed, onMounted} from 'vue';
+import {ProductoPeticion,ProductoRespuesta} from '../../../interfaces/Producto.ts';
 import generarPdf from '../../../helpers/generarPdfHelper.ts'
+import {guardarVenta} from '../../../services/ventas/ventasService.ts'
+import { getProductos } from '../../../services/ventas/productoService.ts';
 
 const barcodeInput = ref('');
 const isOpen = ref(false);
 const monto = ref(0);
 const esGenerada = ref(false);
 
-const productos = reactive<Producto[]>([]);
+const productos = reactive<ProductoPeticion[]>([]);
 
 const totalVenta = computed(() => {
     return productos.reduce((sum,product) => sum + product.subtotal,0);
@@ -176,44 +178,42 @@ const totalCantidad = computed(() => {
 
 const cambio = computed(() => Math.max(monto.value - totalVenta.value,0));
 
-const allProducts: Producto[] = [
-        {
-            "id": 1,
-            "nombre": "Coca-Cola 500ml",
-            "precio": 15,
-            "cantidad": 0, 
-            "barcode": "2600001324",
-            "subtotal": 0
-        },
-        {
-            "id": 2,
-            "nombre": "Pan Dulce",
-            "precio": 8,
-            "cantidad": 0, 
-            "barcode": "pd1234",
-            "subtotal": 0
-        }
-    ];
+const allProducts = ref<ProductoRespuesta[] | null>([]);
+
+onMounted(() => {
+ onLoadProducts();
+});
+
+const onLoadProducts = async() => {
+    const respuesta = await getProductos();
+    if (respuesta.success) {
+        allProducts.value = respuesta.data;
+    }else{
+        console.log(respuesta.error);
+    }
+}
 
 function addProduct() {
     const barcode = barcodeInput.value.trim();
     if (barcode === '') return;
+    
+    const product = allProducts.value?.find(p => p.codigo_barras === barcode);
 
-    const product = allProducts.find(p => p.barcode === barcode);
-
+    console.log(product);
+    
     if (product) {
-        const existingProduct = productos.find(p => p.id === product.id);
+        const existingProduct = productos.find(p => p.producto_id === product.producto_id);
 
         if (existingProduct) {
             //Si el producto ya esta en la tabla aumenta la cantidad en 1 y actualiza el subtotal
             existingProduct.cantidad += 1;
-            existingProduct.subtotal = existingProduct.cantidad * existingProduct.precio;
+            existingProduct.subtotal = existingProduct.cantidad * existingProduct.precio_venta;
         }else{
             //Si no existe se agrega a la tabla 
             productos.push({
                 ...product,
                 cantidad: 1,
-                subtotal: product.precio
+                subtotal: product.precio_venta
             });
         }
     }
@@ -225,12 +225,12 @@ function addProduct() {
     barcodeInput.value = '';
 }
 
-const disminuirProducto = (product:Producto) => {
+const disminuirProducto = (product:ProductoPeticion) => {
     if (product.cantidad > 1) {
         product.cantidad -= 1;
-        product.subtotal = product.cantidad * product.precio;
+        product.subtotal = product.cantidad * product.precio_venta;
     }else{
-        const index = productos.findIndex(p => p.id == product.id);
+        const index = productos.findIndex(p => p.producto_id == product.producto_id);
         if(index !== -1) productos.splice(index,1);
     }
 }
@@ -244,9 +244,12 @@ const cerrarModal = () => {
     isOpen.value = false;
 }
 
-const generarVenta = () => {
-    //TODO Agregar logica para guardar venta y descontar cantidad en productos
+const generarVenta = async () => {
+    const respuesta = await guardarVenta(totalVenta.value,'Efectivo',15,productos);
+    console.log(respuesta);
+    //TODO Agregar mensaje de confirmacion o error
     esGenerada.value = true;
+
 }
 
 const imprimirPdf = () =>{

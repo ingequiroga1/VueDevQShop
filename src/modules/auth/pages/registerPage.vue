@@ -11,7 +11,7 @@
     <!-- Name Input -->
     <div class="mb-4">
       <label for="name" class="block text-gray-600">Nombre</label>
-      <input type="text" id="name" name="name" 
+      <input v-model="nombre" type="text" id="name" name="name" 
       class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
       required
       />
@@ -51,16 +51,15 @@
 
 <script setup lang="ts">
     import {ref,computed} from 'vue';
-    import {signUpWithEmail} from '../../../services/auth/authService.ts'
+    import {signUpWithEmail,CheckIfUserExists} from '../../../services/auth/authService.ts'
     import Alert from '../../common/components/alertComponent.vue'
+    import {AuthResponse} from '../../../interfaces/Auth.ts'
 
-    interface AuthResponse {
-      data: any | null;
-      error: Error | null;
-    }
+
 
     const email = ref<string>('');
     const password = ref<string>('');
+    const nombre = ref<string>('');
     const authError = ref<string | null>(null);
     const showAlert =ref(false);
     const showPassword = ref(false);
@@ -78,19 +77,26 @@
     }
 
     const onSignUp = async() =>{
-    const response: AuthResponse = await signUpWithEmail(email.value, password.value);
-    if (response.error) {
-        //authError.value = response.error.message;
-        alertType.value = 'error'
-        showAlert.value = true
-        alertMessage.value = response.error.message
-        
-      }else{
-        authError.value = null;
-        alertType.value = 'success'
-        showAlert.value = true
-        alertMessage.value = "¡Gracias por registrarte! Para completar el proceso de registro y activar tu cuenta, solo necesitas confirmar tu correo electrónico."
-      }
+    const validacion: boolean = await CheckIfUserExists(email.value);
+    if (!validacion) {
+      const response: AuthResponse = await signUpWithEmail(email.value, password.value, nombre.value);
+      if (response.error) {
+          //authError.value = response.error.message;
+          alertType.value = 'error'
+          showAlert.value = true
+          alertMessage.value = response.error.message
+          
+        }else{
+          authError.value = null;
+          alertType.value = 'success'
+          showAlert.value = true
+          alertMessage.value = "¡Gracias por registrarte! Para completar el proceso de registro y activar tu cuenta, solo necesitas confirmar tu correo electrónico."
+        }
+    }else{
+      alertType.value = 'warning'
+          showAlert.value = true
+          alertMessage.value = "Este correo electrónico ya está registrado. Si olvidaste tu contraseña, intenta restablecerla desde la opción ¿Olvidaste tu contraseña?"    
+        }
     }
 
 </script>
