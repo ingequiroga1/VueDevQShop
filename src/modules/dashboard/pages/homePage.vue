@@ -23,13 +23,13 @@
             <!-- Total de la venta -->
             <div>
                 <h2 class="text-lg font-semibold text-gray-700">Total de la Venta:</h2>
-                <p id="totalVenta" class="text-2xl font-bold text-indigo-600">${{ totalVenta.toFixed(2) }}</p>
+                <p id="totalVenta" class="text-2xl font-bold text-text-color">${{ totalVenta.toFixed(2) }}</p>
             </div>
 
             <!-- Número de productos -->
             <div>
                 <h2 class="text-lg font-semibold text-gray-700">Número de Productos:</h2>
-                <p id="numProductos" class="text-2xl font-bold text-indigo-600">{{ totalCantidad }}</p>
+                <p id="numProductos" class="text-2xl font-bold text-text-color">{{ totalCantidad }}</p>
             </div>
         </div>
 
@@ -64,17 +64,15 @@
                 </tbody>
             </table>
         </div>
-        <div>
+        <div class="flex flex-row-reverse mt-4">
             <button
                 @click="isOpen = true"
-                class="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                class="bg-primary-color text-white font-bold py-2 px-4 rounded hover:bg-secondary-color"
             >
             Cobrar
             </button>
         </div>
     </div>
-
-
     <!-- Modal Cobro-->
      <div 
         v-if="isOpen"
@@ -100,31 +98,43 @@
         </p>
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
             <button
                 @click="agregarMonto(10)"
-                class="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                class="bg-secondary-color text-white font-bold py-2 px-4 rounded"
             >$10</button>
 
             <button
                 @click="agregarMonto(20)"
-                class="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                class="bg-secondary-color text-white font-bold py-2 px-4 rounded"
             >$20</button>
 
             <button
                 @click="agregarMonto(50)"
-                class="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                class="bg-secondary-color text-white font-bold py-2 px-4 rounded"
             >$50</button>
+            <button
+                @click="agregarMonto(100)"
+                class="bg-secondary-color text-white font-bold py-2 px-4 rounded"
+            >$100</button>
+            <button
+                @click="agregarMonto(200)"
+                class="bg-secondary-color text-white font-bold py-2 px-4 rounded"
+            >$200</button>
+            <button
+                @click="agregarMonto(500)"
+                class="bg-secondary-color text-white font-bold py-2 px-4 rounded"
+            >$500</button>
         </div>
 
         <div class="flex flex-row-reverse mt-6 gap-2">
             <button
         @click="cerrarModal"
-        class="bg-red-500 text-white font-bold py-2 px-4 rounded"
+        class="bg-secondary-color text-white font-bold py-2 px-4 rounded"
         >Cerrar</button>
         <button
         @click="generarVenta"
-        class="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+        class="bg-primary-color text-white font-bold py-2 px-4 rounded"
         >Generar Venta</button>
         </div>
      </div>
@@ -143,11 +153,11 @@
         <div class="flex flex-row-reverse mt-6 gap-2">
             <button
         @click="terminar"
-        class="bg-red-500 text-white font-bold py-2 px-4 rounded"
+        class="bg-secondary-color text-white font-bold py-2 px-4 rounded hover:bg-primary-color"
         >Salir</button>
             <button
         @click="imprimirPdf"
-        class="bg-red-500 text-white font-bold py-2 px-4 rounded"
+        class="bg-primary-color text-white font-bold py-2 px-4 rounded hover:bg-secondary-color"
         >Imprimir Ticket</button>
         </div>
      </div>
@@ -245,10 +255,15 @@ const cerrarModal = () => {
 }
 
 const generarVenta = async () => {
-    const respuesta = await guardarVenta(totalVenta.value,'Efectivo',15,productos);
+    if(monto.value > totalVenta.value){
+        const respuesta = await guardarVenta(totalVenta.value,'Efectivo',15,productos);
     console.log(respuesta);
     //TODO Agregar mensaje de confirmacion o error
     esGenerada.value = true;
+    } 
+
+    console.log("No se ha cubierto el monto");
+    
 
 }
 

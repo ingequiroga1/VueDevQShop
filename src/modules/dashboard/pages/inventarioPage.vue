@@ -9,7 +9,7 @@
         v-show="showAlert"
         />
     </div>
-   
+    <loadingSpinner :isLoading="isLoading" />
     <Inventory 
         :products="products"
         @update-product="updateProduct"
@@ -24,21 +24,24 @@ import Inventory from '../../dashboard/components/inventario.vue';
 import {crearProducto, deleteProducto, editarProducto, getProductos} from '../../../services/ventas/productoService.ts';
 import { ProductoPeticion, ProductoRespuesta } from '../../../interfaces/Producto.ts';
 import Alert from '../../common/components/alertComponent.vue'
+import loadingSpinner from '../../common/components/loadingSpinner.vue';
 
 
 const products = ref<ProductoRespuesta[]>([]);
 const showAlert = ref(false);
 const alertMessage = ref<string>('');
 const alertType = ref<'success'|'error'|'warning'|'info'>('info');
+const isLoading = ref(false)
 
 onMounted(() => {
     onLoadProducts();
 });
 
 const onLoadProducts = async () => {
+    isLoading.value = true
     const response = await getProductos()
-    console.log(response);
-       
+    isLoading.value = false
+
      if (!response.success) {
          alertType.value = 'error'
          showAlert.value = true

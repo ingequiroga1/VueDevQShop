@@ -4,12 +4,11 @@
       <h2 class="text-lg font-semibold">Gestión de Inventario</h2>
       <button
         @click="showAddForm = true"
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        class="bg-primary-color text-white px-4 py-2 rounded hover:bg-blue-700"
       >
         Agregar Producto
       </button>
     </div>
-
     <!-- Tabla de inventario -->
     <div class="overflow-x-auto">
       <table class="w-full border-collapse text-left">
@@ -42,13 +41,13 @@
             <td class="px-4 py-2 flex gap-2">
               <button
                 @click="editProduct(product)"
-                class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                class="bg-primary-color text-white px-2 py-1 rounded hover:bg-blue-600"
               >
                 Editar
               </button>
               <button
                 @click="confirmDelete(product.producto_id)"
-                class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                class="bg-secondary-color text-white px-2 py-1 rounded hover:bg-red-600"
               >
                 Eliminar
               </button>
@@ -191,7 +190,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-const props = defineProps({
+const props = define
+
+({
   products: {
     type: Array,
     required: true
@@ -204,6 +205,7 @@ const showAddForm = ref(false)
 const editingProduct = ref(null)
 const showDeleteConfirm = ref(false)
 const deleteProductId = ref(null)
+
 
 const categorias = ref([
       { id: 1, nombre: 'Refrescos' },
