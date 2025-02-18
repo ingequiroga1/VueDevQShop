@@ -1,4 +1,11 @@
 <template>
+    <Alert
+    v-if="showAlert" 
+    :type="alertType" 
+    :message="alertMessage" 
+    dismissible 
+    @close="showAlert = false"
+  /> 
      <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
         <!-- Título -->
         <h1 class="text-2xl font-bold mb-4 text-gray-800">Pantalla de Ventas</h1>
@@ -33,8 +40,10 @@
             </div>
         </div>
 
+
+ 
         <!-- Tabla de productos -->
-        <div class="overflow-x-auto">
+         <div class="hidden sm:flex overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200">
                 <thead class="bg-gray-200">
                     <tr>
@@ -46,7 +55,7 @@
                     </tr>
                 </thead>
                 <tbody id="productosTabla">
-                    <!-- Filas de productos se agregarán aquí dinámicamente -->
+                   
                      <tr v-for="producto in productos" :key="producto.producto_id">
                         <td class="text-center">{{ producto.cantidad }}</td>
                         <td class="text-center">{{ producto.nombre }}</td>
@@ -64,6 +73,39 @@
                 </tbody>
             </table>
         </div>
+        
+        
+        <div class="sm:hidden space-y-4">
+            <div v-for="producto in productos" :key="producto.producto_id" class="border rounded-lg bg-white shadow p-4">
+                <div class="flex justify-between">
+                <span class="font-semibold text-gray-700">Cantidad:</span>
+                <span class="text-gray-600">{{ producto.cantidad }}</span>
+                </div>
+                <div class="flex justify-between mt-2">
+                <span class="font-semibold text-gray-700">Nombre:</span>
+                <span class="text-gray-600">{{ producto.nombre }}</span>
+                </div>
+                <div class="flex justify-between mt-2">
+                <span class="font-semibold text-gray-700">Precio:</span>
+                <span class="text-gray-600">${{ producto.precio_venta.toFixed(2) }}</span>
+                </div>
+                <div class="flex justify-between mt-2">
+                <span class="font-semibold text-gray-700">Subtotal:</span>
+                <span class="text-gray-600">${{ producto.subtotal.toFixed(2) }}</span>
+                </div>
+                <div class="flex justify-between mt-2">
+                <span class="font-semibold text-gray-700">Acciones:</span>
+                <button 
+                                @click="disminuirProducto(producto)"
+                                class="text-red-500 hover:text-red-700 focus:outline-none text-xl" 
+                                >
+                                <font-awesome-icon :icon="['fas', 'minus']" />
+                </button>
+                </div>
+            </div>
+        </div>
+
+
         <div class="flex flex-row-reverse mt-4">
             <button
                 @click="isOpen = true"
@@ -169,12 +211,19 @@ import {ref,reactive,computed, onMounted} from 'vue';
 import {ProductoPeticion,ProductoRespuesta} from '../../../interfaces/Producto.ts';
 import generarPdf from '../../../helpers/generarPdfHelper.ts'
 import {guardarVenta} from '../../../services/ventas/ventasService.ts'
-import { getProductos } from '../../../services/ventas/productoService.ts';
+import { getProductos, getProductoxCB } from '../../../services/ventas/productoService.ts';
+import Alert from '../../common/components/alertComponent.vue'
+
+
 
 const barcodeInput = ref('');
 const isOpen = ref(false);
 const monto = ref(0);
 const esGenerada = ref(false);
+
+const showAlert =ref(false);
+const alertMessage = ref('');
+const alertType = ref<'success'|'error'|'warning'|'info'>('info');
 
 const productos = reactive<ProductoPeticion[]>([]);
 
@@ -203,37 +252,36 @@ const onLoadProducts = async() => {
     }
 }
 
-function addProduct() {
+const addProduct = async (event:any) =>{
+    event.preventDefault();
     const barcode = barcodeInput.value.trim();
     if (barcode === '') return;
     
-    const product = allProducts.value?.find(p => p.codigo_barras === barcode);
-
-    console.log(product);
+    const product =  await getProductoxCB(barcode)//allProducts.value?.find(p => p.codigo_barras === barcode);
     
-    if (product) {
-        const existingProduct = productos.find(p => p.producto_id === product.producto_id);
+     if (product.success) {
+         const existingProduct = productos.find(p => p.producto_id === product.data.producto_id);
 
-        if (existingProduct) {
-            //Si el producto ya esta en la tabla aumenta la cantidad en 1 y actualiza el subtotal
-            existingProduct.cantidad += 1;
-            existingProduct.subtotal = existingProduct.cantidad * existingProduct.precio_venta;
-        }else{
-            //Si no existe se agrega a la tabla 
-            productos.push({
-                ...product,
-                cantidad: 1,
-                subtotal: product.precio_venta
-            });
-        }
-    }
-    else
-    {
-        console.warn('Producto no encontrado');
+         if (existingProduct) {
+             //Si el producto ya esta en la tabla aumenta la cantidad en 1 y actualiza el subtotal
+             existingProduct.cantidad += 1;
+             existingProduct.subtotal = existingProduct.cantidad * existingProduct.precio_venta;
+         }else{
+             //Si no existe se agrega a la tabla 
+             productos.push({
+                 ...product.data,
+                 cantidad: 1,
+                 subtotal: product.data.precio_venta
+             });
+         }
+     }
+     else
+     {
+         console.warn('Producto no encontrado');
             
-    }
+     }
     barcodeInput.value = '';
-}
+};
 
 const disminuirProducto = (product:ProductoPeticion) => {
     if (product.cantidad > 1) {
@@ -256,19 +304,21 @@ const cerrarModal = () => {
 
 const generarVenta = async () => {
     if(monto.value > totalVenta.value){
-        const respuesta = await guardarVenta(totalVenta.value,'Efectivo',15,productos);
-    console.log(respuesta);
+        const respuesta = await guardarVenta(totalVenta.value,'Efectivo',15,'Completa',productos);
+    if (respuesta.success) {
+        alertType.value = 'success';
+        showAlert.value = true;
+        alertMessage.value = 'Se genero la orden de venta correctamente';
+    }
     //TODO Agregar mensaje de confirmacion o error
     esGenerada.value = true;
-    } 
-
-    console.log("No se ha cubierto el monto");
-    
-
+    } else {
+        console.log('El monto recibido es menor al total de la venta');
+    }
 }
 
 const imprimirPdf = () =>{
-    generarPdf();
+    generarPdf(productos);
 }
 
 const terminar = () =>{

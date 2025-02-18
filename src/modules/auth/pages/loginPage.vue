@@ -85,6 +85,7 @@
     const onLogin = async() =>{
       
       const response: AuthResponse = await signInWithEmail(email.value, password.value);
+      
       if (response.error) {
         alertType.value = 'error';
         showAlert.value = true;

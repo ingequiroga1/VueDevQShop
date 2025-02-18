@@ -1,24 +1,31 @@
 <template>
     <div>
         <h1>Ventas</h1>
+        <ventaBuscar @search="onLoadVentas" />
         <tablaVentas :ventas="ventas"/>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import tablaVentas from '../components/tablaVentas.vue';
 import { VentaRespuesta } from '../../../interfaces/Venta';
-import { getVentas } from '../../../services/ventas/ventasService';
+import { getVentasxFecha } from '../../../services/ventas/ventasService';
+import ventaBuscar from '../components/ventaBuscar.vue';
 
 const ventas = ref<VentaRespuesta[]>([]);
 
-onMounted(() => {
-    onLoadVentas();
-})
+// onMounted(() => {
+//     onLoadVentas();
+// })
 
-const onLoadVentas = async () => {
-    const response =await getVentas();
+interface DateRange{
+    startDate: string,
+    endDate: string
+}
+
+const onLoadVentas = async ({startDate,endDate}:DateRange) => {
+    const response =await getVentasxFecha(startDate,endDate);
 
     if (!response.success) {
         console.log(response.error);

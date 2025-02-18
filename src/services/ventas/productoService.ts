@@ -27,6 +27,31 @@ export const getProductos = async (): Promise<ApiResponse<ProductoRespuesta[]>> 
     return {success:true, data: productos}
 }
 
+export const getProductoxCB = async (codigo_barras: string): Promise<ApiResponse<ProductoRespuesta>> => {
+    const {data,error} = await supabase
+        .from('productos')
+        .select(`
+            producto_id,
+            nombre,
+            codigo_barras,
+            descripcion,
+            categorias(categoria_id, nombre),
+            precio_venta,
+            stock,
+            stock_minimo
+            `)
+        .eq('codigo_barras',codigo_barras)
+        .eq('estado','Activo');
+        
+        if (error) {
+            console.error('Error fetching products:', error);
+            return {success: false, error: error.message};
+        }
+
+    const productos = mapearProducto(data)
+    return {success:true, data: productos[0]}
+}
+
 
 export const crearProducto = async (producto: ProductoPeticion) : Promise<ApiResponse<ProductoRespuesta[]>> =>{
     const {data,error:crearError} = await supabase 

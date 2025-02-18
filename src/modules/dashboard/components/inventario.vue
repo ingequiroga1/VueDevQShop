@@ -190,9 +190,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 
-const props = define
-
-({
+defineProps({
   products: {
     type: Array,
     required: true

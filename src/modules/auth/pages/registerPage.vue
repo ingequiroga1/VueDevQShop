@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
     import {ref,computed} from 'vue';
-    import {signUpWithEmail,CheckIfUserExists} from '../../../services/auth/authService.ts'
+    import {signUpWithEmailUsuario,CheckIfUserExists} from '../../../services/auth/authService.ts'
     import Alert from '../../common/components/alertComponent.vue'
     import {AuthResponse} from '../../../interfaces/Auth.ts'
 
@@ -79,7 +79,7 @@
     const onSignUp = async() =>{
     const validacion: boolean = await CheckIfUserExists(email.value);
     if (!validacion) {
-      const response: AuthResponse = await signUpWithEmail(email.value, password.value, nombre.value);
+      const response: AuthResponse = await signUpWithEmailUsuario(email.value, password.value, nombre.value);
       if (response.error) {
           //authError.value = response.error.message;
           alertType.value = 'error'
