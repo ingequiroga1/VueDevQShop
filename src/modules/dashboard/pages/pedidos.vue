@@ -1,3 +1,6 @@
+
+
+
 <template>
     <div class="px-4 py-6">
         <h1 class="text-2x1 font-bold text-center mb-4">
@@ -72,7 +75,3 @@ const formatDate = (date:string): string => {
 //     .subscribe();
 
 </script>
-
-<style lang="scss" scoped>
-
-</style>

@@ -1,11 +1,4 @@
 <template>
-    <Alert
-    v-if="showAlert" 
-    :type="alertType" 
-    :message="alertMessage" 
-    dismissible 
-    @close="showAlert = false"
-  /> 
      <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
         <!-- Título -->
         <h1 class="text-2xl font-bold mb-4 text-gray-800">Pantalla de Ventas</h1>
@@ -121,6 +114,13 @@
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"    
      >
      <div v-if="!esGenerada" class="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
+        <Alert
+        v-if="showAlert" 
+        :type="alertType" 
+        :message="alertMessage" 
+        dismissible 
+        @close="showAlert = false"
+        /> 
         <h2 class="text-2xl font-semibold mb-4">Monto Recibido</h2>
         <div>
             <input 
@@ -253,34 +253,38 @@ const onLoadProducts = async() => {
 }
 
 const addProduct = async (event:any) =>{
-    event.preventDefault();
     const barcode = barcodeInput.value.trim();
     if (barcode === '') return;
-    
-    const product =  await getProductoxCB(barcode)//allProducts.value?.find(p => p.codigo_barras === barcode);
-    
-     if (product.success) {
-         const existingProduct = productos.find(p => p.producto_id === product.data.producto_id);
+    try {
+        console.log('Buscando producto con código de barras:', barcode);
+        const product = await getProductoxCB(barcode);
 
-         if (existingProduct) {
-             //Si el producto ya esta en la tabla aumenta la cantidad en 1 y actualiza el subtotal
-             existingProduct.cantidad += 1;
-             existingProduct.subtotal = existingProduct.cantidad * existingProduct.precio_venta;
-         }else{
-             //Si no existe se agrega a la tabla 
-             productos.push({
-                 ...product.data,
-                 cantidad: 1,
-                 subtotal: product.data.precio_venta
-             });
-         }
-     }
-     else
-     {
-         console.warn('Producto no encontrado');
-            
-     }
-    barcodeInput.value = '';
+        if (!product.success || !product.data) {
+            console.warn('Producto no encontrado');
+            return;
+        }
+
+        const existingProduct = productos.find(p => p.producto_id === product.data.producto_id);
+
+        if (existingProduct) {
+            // Si el producto ya está en la tabla, aumenta la cantidad y actualiza el subtotal
+            existingProduct.cantidad += 1;
+            existingProduct.subtotal = existingProduct.cantidad * existingProduct.precio_venta;
+        } else {
+            // Si no existe, agrégalo a la tabla
+            productos.push({
+                ...product.data,
+                cantidad: 1,
+                subtotal: product.data.precio_venta
+            });
+        }
+
+    } catch (err) {
+        console.error('Error en addProduct:', err);
+    }finally {
+        barcodeInput.value = ''; // Limpiar siempre el input
+    }
+    //allProducts.value?.find(p => p.codigo_barras === barcode);
 };
 
 const disminuirProducto = (product:ProductoPeticion) => {
@@ -313,7 +317,9 @@ const generarVenta = async () => {
     //TODO Agregar mensaje de confirmacion o error
     esGenerada.value = true;
     } else {
-        console.log('El monto recibido es menor al total de la venta');
+        alertType.value = 'warning';
+        showAlert.value = true;
+        alertMessage.value = 'El monto recibido es menor al total de la venta';
     }
 }
 

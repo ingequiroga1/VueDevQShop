@@ -1,6 +1,7 @@
 import { ProductoPeticion, ProductoRespuesta } from '../../interfaces/Producto';
 import {supabase} from '../supabaseClient'
 import { ApiResponse } from '../../types/api';
+import  {debounce}  from 'lodash-es';
 
 
 export const getProductos = async (): Promise<ApiResponse<ProductoRespuesta[]>> => {
@@ -28,7 +29,8 @@ export const getProductos = async (): Promise<ApiResponse<ProductoRespuesta[]>> 
 }
 
 export const getProductoxCB = async (codigo_barras: string): Promise<ApiResponse<ProductoRespuesta>> => {
-    const {data,error} = await supabase
+    try {
+        const { data, error } = await supabase
         .from('productos')
         .select(`
             producto_id,
@@ -39,17 +41,26 @@ export const getProductoxCB = async (codigo_barras: string): Promise<ApiResponse
             precio_venta,
             stock,
             stock_minimo
-            `)
-        .eq('codigo_barras',codigo_barras)
-        .eq('estado','Activo');
-        
+        `)
+        .eq('codigo_barras', codigo_barras)
+        .eq('estado', 'Activo')
+        .single(); // Asegura que solo devuelva un objeto, no un array
+
         if (error) {
             console.error('Error fetching products:', error);
-            return {success: false, error: error.message};
+            return { success: false, error: error.message };
         }
 
-    const productos = mapearProducto(data)
-    return {success:true, data: productos[0]}
+        if (!data) {
+            return { success: false, error: 'Producto no encontrado' };
+        }
+
+        const productoMapeado = mapearProducto([data])[0];
+        return { success: true, data: productoMapeado };
+    }catch (err) {
+        console.error('Unexpected error:', err);
+        return { success: false, error: 'Error inesperado' };
+    }
 }
 
 
@@ -139,10 +150,10 @@ function mapearProducto(datos:any) {
         codigo_barras: producto.codigo_barras,
         descripcion: producto.descripcion,
         categorias: producto.categorias
-        ? {
+        ? [{
             categoria_id: producto.categorias.categoria_id,
             nombre: producto.categorias.nombre,
-        }:null,
+        }]:[],
         precio_venta: producto.precio_venta,
         stock: producto.stock,
         stock_minimo: producto.stock_minimo,

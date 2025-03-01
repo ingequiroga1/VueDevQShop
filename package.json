@@ -15,12 +15,14 @@
     "@supabase/supabase-js": "^2.47.10",
     "html2pdf.js": "^0.10.2",
     "jspdf": "^2.5.2",
+    "lodash-es": "^4.17.21",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5",
     "vue3-print-nb": "^0.1.4"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.15",
+    "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.9.1",
     "@types/vue": "^2.0.0",
     "@vitejs/plugin-vue": "^5.1.4",

@@ -207,7 +207,24 @@ const deleteProductId = ref(null)
 
 const categorias = ref([
       { id: 1, nombre: 'Refrescos' },
-      { id: 2, nombre: 'Pan Dulce' }
+      { id: 2, nombre: 'Pan Dulce' },
+      { id: 3, nombre: 'FARMACIA' },
+      { id: 4, nombre: 'PANES' },
+      { id: 5, nombre: 'GALLETAS' },
+      { id: 6, nombre: 'BOTANAS' },
+      { id: 7, nombre: 'PAPELERIA' },
+      { id: 8, nombre: 'FERRETERIA' },
+      { id: 9, nombre: 'ACCS. CELULARES' },
+      { id: 10, nombre: 'ABARROTE' },
+      { id: 11, nombre: 'DULCERIA' },
+      { id: 12, nombre: 'AGUA' },
+      { id: 13, nombre: 'ALIMENTO PARA MASCOTAS' },
+      { id: 14, nombre: 'LACTEOS' },
+      { id: 15, nombre: 'EMBUTIDOS' },
+      { id: 16, nombre: 'BEBIDAS' },
+      { id: 17, nombre: 'FORMULAS LACTEAS' },
+      { id: 18, nombre: 'ALIMENTOS' },
+      { id: 19, nombre: 'SIN CATEGORIA' }
 ])
 
 const productForm = ref({
