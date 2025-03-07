@@ -1,6 +1,7 @@
 interface SuccessResponse<T> {
     success: true;
     data: T;
+    count: number;
   }
   
   interface ErrorResponse {

@@ -13,7 +13,7 @@
                     placeholder="Ingresa el código de barras" 
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     v-model="barcodeInput"
-                    @keyup.enter="addProduct">
+        >
             </div>
         </form>
       
@@ -253,8 +253,10 @@ const onLoadProducts = async() => {
 }
 
 const addProduct = async (event:any) =>{
+    event.preventDefault();
     const barcode = barcodeInput.value.trim();
     if (barcode === '') return;
+    
     try {
         console.log('Buscando producto con código de barras:', barcode);
         const product = await getProductoxCB(barcode);

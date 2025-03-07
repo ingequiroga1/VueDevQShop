@@ -9,6 +9,14 @@
         Agregar Producto
       </button>
     </div>
+    <div class="mb-4">
+    <!-- Campo de búsqueda -->
+    <input 
+      v-model="searchQuery" 
+      placeholder="Buscar por nombre..."
+      class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" 
+    />
+    </div>
     <!-- Tabla de inventario -->
     <div class="overflow-x-auto">
       <table class="w-full border-collapse text-left">
@@ -29,7 +37,7 @@
             class="hover:bg-gray-50 text-sm"
           >
             <td class="px-4 py-2">{{ product.nombre }}</td>
-            <td class="px-4 py-2">{{ product.categorias.nombre }}</td>
+            <td class="px-4 py-2">{{ product.categorias[0].nombre }}</td>
             <td
               class="px-4 py-2 font-medium"
               :class="{ 'text-red-600': product.stock < 5 }"
@@ -55,6 +63,27 @@
           </tr>
         </tbody>
       </table>
+       <!-- Controles de paginación -->
+      <div class="flex items-center justify-center space-x-4 mt-4">
+        <button @click="currentPage--; cambiarPagina()" 
+        :disabled="currentPage === 1"
+        class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md 
+           hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Anterior
+        </button>
+        <span class="text-lg font-semibold text-gray-700">
+          Página {{ currentPage }}
+        </span>
+        <button 
+          @click="currentPage++; cambiarPagina()" 
+          :disabled="currentPage * pageSize >= totalProducts"
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md 
+           hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
 
     <!-- Modal para agregar/editar producto -->
@@ -79,7 +108,7 @@
           <div>
             <label class="block text-sm font-medium mb-1">Categoría:</label>
             <select
-              v-model="productForm.categorias.categoria_id"
+              v-model="productForm.categorias[0].categoria_id"
               required
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             >
@@ -183,26 +212,35 @@
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,watch } from 'vue'
 
 defineProps({
   products: {
     type: Array,
     required: true
+  },
+  totalProducts: {
+    type: Number,
+    required: true
   }
 })
 
-const emit = defineEmits(['update-product', 'add-product', 'delete-product'])
+const emit = defineEmits(['update-product', 'add-product', 'delete-product','filtrar-product','cambiar-pagina'])
 
 const showAddForm = ref(false)
 const editingProduct = ref(null)
 const showDeleteConfirm = ref(false)
 const deleteProductId = ref(null)
+const searchQuery = ref('')
+const currentPage = ref(1)
+const pageSize = 10
+
 
 
 const categorias = ref([
@@ -281,5 +319,16 @@ const deleteProduct = () => {
   showDeleteConfirm.value = false
   deleteProductId.value = null
 }
+
+const cambiarPagina = () => {
+  emit('cambiar-pagina', currentPage.value)
+}
+
+watch(searchQuery, (newValue) => {
+    currentPage.value = 1 //Reset page when search query changes
+    emit('filtrar-product', newValue)
+});
+
+
 </script>
 

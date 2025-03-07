@@ -1,23 +1,46 @@
 import { ProductoPeticion, ProductoRespuesta } from '../../interfaces/Producto';
 import {supabase} from '../supabaseClient'
 import { ApiResponse } from '../../types/api';
-import  {debounce}  from 'lodash-es';
 
 
-export const getProductos = async (): Promise<ApiResponse<ProductoRespuesta[]>> => {
-    const {data,error} = await supabase
-        .from('productos')
-        .select(`
-            producto_id,
-            nombre,
-            codigo_barras,
-            descripcion,
-            categorias(categoria_id, nombre),
-            precio_venta,
-            stock,
-            stock_minimo
-            `)
-        .eq('estado','Activo');
+
+export const getProductos = async (searchQuery:string,currentPage:number,pageSize:number): Promise<ApiResponse<ProductoRespuesta[]>> => {
+    let query = supabase
+         .from('productos')
+         .select(`
+             producto_id,
+             nombre,
+             codigo_barras,
+             descripcion,
+             categorias(categoria_id, nombre),
+             precio_venta,
+             stock,
+             stock_minimo
+             `,{count:'exact'})
+         .eq('estado','Activo')
+
+    if(searchQuery.trim()){
+        query.ilike('nombre',`%${searchQuery}%`)
+    }else{
+        const from = (currentPage-1)*pageSize
+        const to = from+pageSize-1
+        query = query.range(from,to)
+    }
+    
+    const {data,error,count} = await query
+    // const {data,error,count} = await supabase
+    //     .from('productos')
+    //     .select(`
+    //         producto_id,
+    //         nombre,
+    //         codigo_barras,
+    //         descripcion,
+    //         categorias(categoria_id, nombre),
+    //         precio_venta,
+    //         stock,
+    //         stock_minimo
+    //         `,{count:'exact'})
+    //     .eq('estado','Activo');
         
         if (error) {
             console.error('Error fetching products:', error);
@@ -25,7 +48,7 @@ export const getProductos = async (): Promise<ApiResponse<ProductoRespuesta[]>> 
         }
 
     const productos = mapearProducto(data)
-    return {success:true, data: productos}
+    return {success:true, data: productos, count: count || 0}
 }
 
 export const getProductoxCB = async (codigo_barras: string): Promise<ApiResponse<ProductoRespuesta>> => {
@@ -56,7 +79,7 @@ export const getProductoxCB = async (codigo_barras: string): Promise<ApiResponse
         }
 
         const productoMapeado = mapearProducto([data])[0];
-        return { success: true, data: productoMapeado };
+        return { success: true, data: productoMapeado, count: 1 };
     }catch (err) {
         console.error('Unexpected error:', err);
         return { success: false, error: 'Error inesperado' };
@@ -95,7 +118,7 @@ export const crearProducto = async (producto: ProductoPeticion) : Promise<ApiRes
         return {success: false, error: crearError.message};
     }
     const productos = mapearProducto(data)
-    return {success:true, data: productos}
+    return {success:true, data: productos, count: productos.length}
 }
 
 export const deleteProducto = async (idProd:number):Promise<ApiResponse<null>> => {
@@ -116,7 +139,7 @@ export const deleteProducto = async (idProd:number):Promise<ApiResponse<null>> =
         return {success: false, error: deleteError.message}; 
     }
 
-    return{success: true,data: null}    
+    return{success: true,data: null, count: 0}    
 }
 
 export const editarProducto = async(editProd: ProductoPeticion) : Promise<ApiResponse<null>> => {
@@ -139,7 +162,7 @@ export const editarProducto = async(editProd: ProductoPeticion) : Promise<ApiRes
             return {success: false, error: editError.message};   
         }
 
-        return{success: true,data: null}
+        return{success: true,data: null , count: 0}
 }
 
 function mapearProducto(datos:any) {

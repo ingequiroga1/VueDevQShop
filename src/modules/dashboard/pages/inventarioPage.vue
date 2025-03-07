@@ -12,9 +12,12 @@
     <loadingSpinner :isLoading="isLoading" />
     <Inventory 
         :products="products"
+        :totalProducts="totalProducts"
+        @filtrar-product="filtrarProducts"
         @update-product="updateProduct"
         @add-product="addProduct"
         @delete-product="deleteProduct"
+        @cambiar-pagina="cambiarPagina"
       />
 </template>
 
@@ -32,14 +35,16 @@ const showAlert = ref(false);
 const alertMessage = ref<string>('');
 const alertType = ref<'success'|'error'|'warning'|'info'>('info');
 const isLoading = ref(false)
+const searchQuery = ref<string>('');
+const totalProducts = ref<number>(0);
 
 onMounted(() => {
-    onLoadProducts();
+    onLoadProducts('',1,50);
 });
 
-const onLoadProducts = async () => {
+const onLoadProducts = async (busqueda:string,cuerrentPage:number,pageSize:number) => {
     isLoading.value = true
-    const response = await getProductos()
+    const response = await getProductos(busqueda, cuerrentPage, pageSize);
     isLoading.value = false
 
      if (!response.success) {
@@ -48,6 +53,7 @@ const onLoadProducts = async () => {
          alertMessage.value = `Error al cargar los productos: ${response.error}`;
      }else{
          products.value = response.data;
+         totalProducts.value = response.count;
      }
 }
 
@@ -112,6 +118,16 @@ const updateProduct = async (editProduct:ProductoPeticion) =>{
 const handleClose = () => {
   showAlert.value = false;
 };
+
+const cambiarPagina = (pagina:number) => {
+    onLoadProducts(searchQuery.value,pagina,50);
+}
+
+const filtrarProducts = (query:string) => {
+    searchQuery.value = query;
+    onLoadProducts(query,1,50);
+}
+
 
 
 
