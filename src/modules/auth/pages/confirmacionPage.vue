@@ -32,7 +32,6 @@ const router = useRouter();
 
 onMounted(async () => {
   console.log("Confirmacion");
-  
   validarAcceso();
 }
 )
@@ -67,7 +66,9 @@ const validarAcceso = async () => {
   }
 
   if (accessToken) {
-    console.log(accessToken);
+    if (accessToken && refreshToken) {
+          await ingresar(accessToken, refreshToken);
+        }
   }
 }
 

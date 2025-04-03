@@ -4,7 +4,7 @@ import { ApiResponse } from '../../types/api';
 import { VentaRespuesta } from '../../interfaces/Venta';
 
 export const getVentas = async (): Promise<ApiResponse<VentaRespuesta[]>> => {
-  const {data,error} = await supabase
+  const {data,error,count} = await supabase
   .from('ventas')
   .select(`
     venta_id,
@@ -19,7 +19,7 @@ export const getVentas = async (): Promise<ApiResponse<VentaRespuesta[]>> => {
         nombre
       )
     )
-  `)
+  `,{count:'exact'})
   .order('fecha_venta', { ascending: false });
 
   if (error) {
@@ -27,12 +27,11 @@ export const getVentas = async (): Promise<ApiResponse<VentaRespuesta[]>> => {
   }
 
   const ventas = mapearVentas(data);
-  return {success: true, data: ventas}
-
+  return {success: true, data: ventas,count:count || 0}
 }
 
 export const getVentasxFecha = async (fechaini:string,fechafin:string): Promise<ApiResponse<VentaRespuesta[]>> => {
-  const {data,error} = await supabase
+  const {data,error,count} = await supabase
   .from('ventas')
   .select(`
     venta_id,
@@ -47,7 +46,7 @@ export const getVentasxFecha = async (fechaini:string,fechafin:string): Promise<
         nombre
       )
     )
-  `)
+  `,{count: 'exact'})
   .gte('fecha_venta',`${fechaini}T00:00:00`) //se agrega date para que tome solo el valor de la fecha sin hora
   .lte('fecha_venta',`${fechafin}T23:59:59`)
   .order('fecha_venta', { ascending: false });
@@ -57,7 +56,7 @@ export const getVentasxFecha = async (fechaini:string,fechafin:string): Promise<
   }
 
   const ventas = mapearVentas(data);
-  return {success: true, data: ventas}
+  return {success: true, data: ventas,count:count || 0}
 
 }
 
@@ -84,7 +83,7 @@ Promise<ApiResponse<string>> => {
 
         const mensaje = `Venta generada ${data}`;  
 
-        return {success:true,data:mensaje};
+        return {success:true,data:mensaje, count:1};
 }
 
 

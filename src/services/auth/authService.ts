@@ -2,7 +2,7 @@ import {supabase} from '../supabaseClient'
 import {AuthResponse} from '../../interfaces/Auth'
 
 //Registrar nuevo usuario con correo y password
-export const signUpWithEmailUsuario = async (email:string, password:string, nombre:string): 
+export const signUpWithEmailUsuario = async (email:string, password:string, nombre:string,rol:string='',direccion:string=''): 
 Promise<AuthResponse> => {    
 
    const {data, error } = await supabase.auth.signUp({
@@ -13,7 +13,6 @@ Promise<AuthResponse> => {
    if (error) {
       return {data: null, error: new Error(`Error al registrar el usuario: ${error.message}`)};  
     }
-
     const user = data?.user;
 
     if (user) {
@@ -25,17 +24,16 @@ Promise<AuthResponse> => {
                 auth_user_id: user.id,
                 nombre: nombre,
                 nombre_usuario: email,
-                rol: 'Cajero'
+                rol: rol,
+                direccion: direccion
             }
         ]);
-        
 
         if (insertError) {
             return {data:null, error: new Error(`Error al insertar en la tabla de usuarios: ${insertError.message}`)};
         }
         return {data: userData, error: null};
     }
-
    return{data,error};
 };
 
@@ -153,7 +151,7 @@ export const setSession = async (accessToken:string,refreshToken:string) =>
         access_token: accessToken,
         refresh_token: refreshToken,
     });
-
+    
     if (error) {
         return false
     }

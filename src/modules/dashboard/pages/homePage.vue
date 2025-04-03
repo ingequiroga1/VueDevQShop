@@ -207,11 +207,11 @@
 </template>
 
 <script setup lang="ts">
-import {ref,reactive,computed, onMounted} from 'vue';
-import {ProductoPeticion,ProductoRespuesta} from '../../../interfaces/Producto.ts';
+import {ref,reactive,computed} from 'vue';
+import {ProductoPeticion} from '../../../interfaces/Producto.ts';
 import generarPdf from '../../../helpers/generarPdfHelper.ts'
 import {guardarVenta} from '../../../services/ventas/ventasService.ts'
-import { getProductos, getProductoxCB } from '../../../services/ventas/productoService.ts';
+import { getProductoxCB } from '../../../services/ventas/productoService.ts';
 import Alert from '../../common/components/alertComponent.vue'
 
 
@@ -236,21 +236,6 @@ const totalCantidad = computed(() => {
 })
 
 const cambio = computed(() => Math.max(monto.value - totalVenta.value,0));
-
-const allProducts = ref<ProductoRespuesta[] | null>([]);
-
-onMounted(() => {
- onLoadProducts();
-});
-
-const onLoadProducts = async() => {
-    const respuesta = await getProductos();
-    if (respuesta.success) {
-        allProducts.value = respuesta.data;
-    }else{
-        console.log(respuesta.error);
-    }
-}
 
 const addProduct = async (event:any) =>{
     event.preventDefault();

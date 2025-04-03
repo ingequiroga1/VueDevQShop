@@ -79,9 +79,9 @@
     const onSignUp = async() =>{
     const validacion: boolean = await CheckIfUserExists(email.value);
     if (!validacion) {
-      const response: AuthResponse = await signUpWithEmailUsuario(email.value, password.value, nombre.value);
+      const rolAdmin = 'Admin';
+      const response: AuthResponse = await signUpWithEmailUsuario(email.value, password.value, nombre.value,rolAdmin);
       if (response.error) {
-          //authError.value = response.error.message;
           alertType.value = 'error'
           showAlert.value = true
           alertMessage.value = response.error.message
