@@ -1,8 +1,29 @@
-export interface Producto{
-    id: number;
+export interface ProductoPeticion{
+    producto_id: number;
     nombre: string;
-    barcode: string;
-    precio: number;
-    cantidad: number;
+    codigo_barras: string;
+    descripcion: string,
+    categorias:Categoria | null,
+    precio_venta: number;
+    stock: number;
+    stock_minimo:number;
     subtotal: number;
+    cantidad: number;
+}
+
+
+export interface Categoria {
+    categoria_id: number;
+    nombre: string;
+  }
+
+export interface ProductoRespuesta{
+    producto_id: number;
+    nombre: string;
+    codigo_barras: string;
+    descripcion: string;
+    categorias: Categoria | null;
+    precio_venta: number;
+    stock: number;
+    stock_minimo:number;
 }

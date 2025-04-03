@@ -1,7 +1,8 @@
 <template>
       <!-- Container principal -->
   <div class="bg-white rounded-lg shadow-md p-8 max-w-md text-center">
-    <!-- Icono de verificación -->
+    <div v-if="esInvite">
+      <!-- Icono de verificación -->
     <div class="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
       <svg class="w-8 h-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -12,11 +13,64 @@
     <h2 class="text-2xl font-semibold text-gray-800 mb-2">¡Correo Confirmado!</h2>
     <p class="text-gray-600 mb-6">Gracias por confirmar tu correo electrónico. Ahora puedes acceder a todas nuestras funcionalidades.</p>
     
-    <!-- Botón de acción -->
-    <RouterLink :to="{name: 'login'}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors duration-300">
-      Ir al Inicio
-    </RouterLink>
+    </div>
+
+    <PassChangeComponent v-if="esRecovery" />
   </div>
+  
 </template>
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import PassChangeComponent from '../components/passChangeComponent.vue';
+import { setSession } from '../../../services/auth/authService';
+import { useRouter } from 'vue-router';
+
+const esRecovery = ref(false);
+const esInvite = ref(false);
+
+const router = useRouter();
+
+onMounted(async () => {
+  console.log("Confirmacion");
+  
+  validarAcceso();
+}
+)
+
+const ingresar = async (token:string, refreshToken:string) => {
+ const respIngresar = await setSession(token,refreshToken);
+ console.log(respIngresar);
+ 
+};
+
+const validarAcceso = async () => {
+  const hash = window.location.hash;
+  const cleanedHash = hash.startsWith('#/') ? hash.substring(2) : hash;
+  const urlParams = new URLSearchParams(cleanedHash);
+  const accessToken:string | null = urlParams.get('access_token');
+  const refreshToken = urlParams.get('refresh_token');
+  const type = urlParams.get('type')
+
+  if (type) {
+    switch (type) {
+      case 'recovery':
+        if (accessToken && refreshToken) {
+          await ingresar(accessToken, refreshToken);
+        }
+        esRecovery.value = true;
+        router.replace("/changepass");
+        break;
+    
+      default:
+        break;
+    }
+  }
+
+  if (accessToken) {
+    console.log(accessToken);
+  }
+}
+
+</script>
 
 

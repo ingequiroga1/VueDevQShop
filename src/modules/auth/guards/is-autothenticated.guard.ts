@@ -1,6 +1,6 @@
 
 import { NavigationGuardNext, RouteLocationNormalizedGeneric, RouteLocationNormalizedLoadedGeneric } from "vue-router";
-import { getCurrentUser} from "../../../services/supabaseClient";
+import { getCurrentUser} from "../../../services/auth/authService.ts";
 // const isAuthenticatedGuard = (to:RouteLocationNormalizedGeneric,
 //     next: NavigationGuardNext) => {
 //         const userId = localStorage.getItem('userId');
@@ -17,11 +17,16 @@ import { getCurrentUser} from "../../../services/supabaseClient";
 const isAuthenticatedGuard = async (_to:RouteLocationNormalizedGeneric,
     _:RouteLocationNormalizedLoadedGeneric,
     next: NavigationGuardNext) => {
+        console.log(_to);
+        const urlParams = new URLSearchParams(_to.fullPath);
+        const type = urlParams.get('type')
         const user = await getCurrentUser();
         if(user){
-            return next({
-                name: 'dashboard'
-            });
+            if (type == 'recovery') {
+                return next({name: 'changePass'})
+            }
+            
+            return next();
         }
         return next();
     
