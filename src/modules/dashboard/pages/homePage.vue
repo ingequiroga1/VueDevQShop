@@ -2,7 +2,7 @@
      <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
         <!-- Título -->
         <h1 class="text-2xl font-bold mb-4 text-gray-800">Pantalla de Ventas</h1>
-
+        <p v-if="principalStore.user">{{ principalStore.user.usuario_id }}</p>
         <form @submit.prevent="addProduct">
               <!-- Input para el código de barras -->
             <div class="mb-4">
@@ -213,6 +213,7 @@ import generarPdf from '../../../helpers/generarPdfHelper.ts'
 import {guardarVenta} from '../../../services/ventas/ventasService.ts'
 import { getProductoxCB } from '../../../services/ventas/productoService.ts';
 import Alert from '../../common/components/alertComponent.vue'
+import { useprincipalStore } from '../../../store';
 
 
 
@@ -236,6 +237,8 @@ const totalCantidad = computed(() => {
 })
 
 const cambio = computed(() => Math.max(monto.value - totalVenta.value,0));
+
+const principalStore = useprincipalStore();
 
 const addProduct = async (event:any) =>{
     event.preventDefault();
@@ -295,7 +298,7 @@ const cerrarModal = () => {
 
 const generarVenta = async () => {
     if(monto.value > totalVenta.value){
-        const respuesta = await guardarVenta(totalVenta.value,'Efectivo',15,'Completa',productos);
+        const respuesta = await guardarVenta(totalVenta.value,'Efectivo',principalStore.user.usuario_id,'Completa',productos);
     if (respuesta.success) {
         alertType.value = 'success';
         showAlert.value = true;

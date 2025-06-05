@@ -17,7 +17,6 @@ import { getCurrentUser} from "../../../services/auth/authService.ts";
 const isAuthenticatedGuard = async (_to:RouteLocationNormalizedGeneric,
     _:RouteLocationNormalizedLoadedGeneric,
     next: NavigationGuardNext) => {
-        console.log(_to);
         const urlParams = new URLSearchParams(_to.fullPath);
         const type = urlParams.get('type')
         const user = await getCurrentUser();

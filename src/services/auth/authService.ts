@@ -84,17 +84,41 @@ export const updateUser = async(pass:string): Promise<AuthResponse> =>{
 
 
 //inicio de session de usuario con correo electronico y contraseña
-export const signInWithEmail = async (email:string, password:string) => {
-   const {data, error } = await supabase.auth.signInWithPassword({
-       email,
-       password,
-   });
+export const signInWithEmail = async (email: string, password: string) => {
+  const response = await fetch('https://uhxlmskvuxholdkghqeb.supabase.co/functions/v1/login-function', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
 
-   if(error) {
-       console.log('Error al iniciar sesion', error.message);
-   }
-   return {data,error};
+  const result = await response.json();
+  return {
+    data: response.ok ? result : null,
+    error: response.ok ? null : new Error(`Error al iniciar sesión: ${result.error}`),
+  };
+
 };
+
+//Inicio de sesion con Google
+export const signInWithGoogle = async () => {
+    const {data,error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            //redirectTo: 'https://tiendadevq.netlify.app/pedidos'
+            
+            redirectTo: 'http://localhost:5173/#/dashboard'
+           // skipBrowserRedirect: true // Evita la redirección automática
+        }
+    });
+
+    if (error) {
+        return {error};
+    }else {
+        console.log('Inicia sesión con Google',data);
+    }
+ };
 
 //Cierre de sesion del usuario
 
@@ -145,16 +169,46 @@ export const CheckIfUserExists = async (email:string): Promise<boolean> =>
     return !!data;
 };
 
-export const setSession = async (accessToken:string,refreshToken:string) =>
+export const setSession = async (accessToken:string,refreshToken:string):Promise<AuthResponse> =>
 {
     const {data,error} = await supabase.auth.setSession({
         access_token: accessToken,
         refresh_token: refreshToken,
     });
-    
+
     if (error) {
-        return false
+        return {data: null, error: new Error(`Error al registrar el cliente: ${error.message}`)};
     }
-    return !!data; 
+    return {data,error}; 
 
 }
+
+export const checkSession = async () => {  
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        const user = await obtenerUsuario(session.user.id);
+        return user?.[0] || null;
+    }
+ }
+
+ async function obtenerUsuario(id: string) {
+    const {data,error} = await supabase
+        .from('usuarios')
+        .select(`
+            usuario_id,
+            nombre,
+            rol,
+            nombre_usuario,
+            direccion
+            `)
+        .eq('auth_user_id',id);
+
+        if (error) {
+            return null
+        }
+
+        return data;
+}
+
+
+

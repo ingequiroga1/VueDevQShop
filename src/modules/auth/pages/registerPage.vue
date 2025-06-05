@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
     import {ref,computed} from 'vue';
-    import {signUpWithEmailUsuario,CheckIfUserExists} from '../../../services/auth/authService.ts'
+    import {CheckIfUserExists, signUpWithEmailUsuario} from '../../../services/auth/authService.ts'
     import Alert from '../../common/components/alertComponent.vue'
     import {AuthResponse} from '../../../interfaces/Auth.ts'
 
@@ -65,6 +65,7 @@
     const showPassword = ref(false);
     const alertMessage = ref<string>('');
     const alertType = ref<'success'|'error'|'warning'|'info'>('info');
+    const rolAdminValue = 'Administrador'
     
     function submitForm(){
       onSignUp();
@@ -79,7 +80,7 @@
     const onSignUp = async() =>{
     const validacion: boolean = await CheckIfUserExists(email.value);
     if (!validacion) {
-      const rolAdmin = 'Admin';
+      const rolAdmin = rolAdminValue;
       const response: AuthResponse = await signUpWithEmailUsuario(email.value, password.value, nombre.value,rolAdmin);
       if (response.error) {
           alertType.value = 'error'

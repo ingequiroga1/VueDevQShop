@@ -37,7 +37,7 @@
                   <tr v-for="detalle in venta.detalle" :key="detalle.producto">
                     <td>{{ detalle.producto }}</td>
                     <td>{{ detalle.cantidad }}</td>
-                    <td>{{ detalle.subtotal }}</td>
+                    <td>{{ formatCurrency(detalle.subtotal) }}</td>
                   </tr>
                 </tbody>
               </table>
