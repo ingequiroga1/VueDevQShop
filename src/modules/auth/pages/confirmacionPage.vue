@@ -31,17 +31,31 @@ const esInvite = ref(false);
 const router = useRouter();
 
 onMounted(async () => {
-  console.log("Confirmacion");
-  
   validarAcceso();
 }
 )
 
 const ingresar = async (token:string, refreshToken:string) => {
- const respIngresar = await setSession(token,refreshToken);
- console.log(respIngresar);
- 
+ const {data,error} = await setSession(token,refreshToken);
+  if (error) {
+      console.error('Error al iniciar sesión:', error);
+      return;
+    }
+    // Aquí puedes manejar la respuesta de la API después de iniciar sesión
+    console.log('Sesión iniciada con éxito:', data);
+    // Redirigir a la página principal o a donde desees
+    router.push('/home');
+    // Aquí puedes guardar el token en el almacenamiento local o en Vuex, según tu implementación
+    // localStorage.setItem('token', token);
+    // localStorage.setItem('refreshToken', refreshToken);
+    // console.log('Token guardado en el almacenamiento local');
+ console.log(data)
 };
+
+
+
+
+
 
 const validarAcceso = async () => {
   const hash = window.location.hash;
@@ -67,7 +81,9 @@ const validarAcceso = async () => {
   }
 
   if (accessToken) {
-    console.log(accessToken);
+    if (accessToken && refreshToken) {
+          await ingresar(accessToken, refreshToken);
+        }
   }
 }
 

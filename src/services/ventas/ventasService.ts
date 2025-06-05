@@ -1,10 +1,10 @@
 import {supabase} from '../supabaseClient'
 import { ProductoPeticion } from '../../interfaces/Producto';
 import { ApiResponse } from '../../types/api';
-import { VentaRespuesta } from '../../interfaces/Venta';
+import { PedidoMapeado, VentaPedido, VentaRespuesta } from '../../interfaces/Venta';
 
 export const getVentas = async (): Promise<ApiResponse<VentaRespuesta[]>> => {
-  const {data,error} = await supabase
+  const {data,error,count} = await supabase
   .from('ventas')
   .select(`
     venta_id,
@@ -19,7 +19,7 @@ export const getVentas = async (): Promise<ApiResponse<VentaRespuesta[]>> => {
         nombre
       )
     )
-  `)
+  `,{count:'exact'})
   .order('fecha_venta', { ascending: false });
 
   if (error) {
@@ -27,12 +27,43 @@ export const getVentas = async (): Promise<ApiResponse<VentaRespuesta[]>> => {
   }
 
   const ventas = mapearVentas(data);
-  return {success: true, data: ventas}
+  return {success: true, data: ventas,count:count || 0}
+}
+
+export const getVentasPendientes = async (): Promise<ApiResponse<PedidoMapeado[]>> => {
+  const { data, error } = await supabase
+  .from('ventas')
+  .select(`
+    estado,
+    fecha_venta,
+    total,
+    venta_id,
+    usuarios (
+      nombre,
+      direccion
+    ),
+    ventas_detalle (
+      precio_unitario,
+      productos (
+        nombre
+      )
+    )
+  `)
+  .eq('estado', 'Pendiente')
+ 
+if (error) {
+  return {success: false, error: error?.message || 'Error al obtener los datos'};
+}
+console.log('Data:', data);
+
+const ventas = mapearPedidos(data);
+return {success: true, data:ventas ,count: data?.length || 0};
 
 }
 
+
 export const getVentasxFecha = async (fechaini:string,fechafin:string): Promise<ApiResponse<VentaRespuesta[]>> => {
-  const {data,error} = await supabase
+  const {data,error,count} = await supabase
   .from('ventas')
   .select(`
     venta_id,
@@ -47,7 +78,7 @@ export const getVentasxFecha = async (fechaini:string,fechafin:string): Promise<
         nombre
       )
     )
-  `)
+  `,{count: 'exact'})
   .gte('fecha_venta',`${fechaini}T00:00:00`) //se agrega date para que tome solo el valor de la fecha sin hora
   .lte('fecha_venta',`${fechafin}T23:59:59`)
   .order('fecha_venta', { ascending: false });
@@ -57,24 +88,21 @@ export const getVentasxFecha = async (fechaini:string,fechafin:string): Promise<
   }
 
   const ventas = mapearVentas(data);
-  return {success: true, data: ventas}
+  return {success: true, data: ventas,count:count || 0}
 
 }
 
 
-export const guardarVenta = async (total:number, metodoPago:string, cajeroId:number, estado:string, productos:ProductoPeticion[]):
+export const guardarVenta = async (total:number, metodoPago:string, usuario:number, estado:string, productos:ProductoPeticion[]):
 Promise<ApiResponse<string>> => {
 
-  let clienteSistema = 11;
-
         const {data,error} = await supabase
-            .rpc('procesar_venta', {
-              p_cajero_id: cajeroId,
+            .rpc('registrar_venta', {
+              p_total: total,
               p_metodo_pago: metodoPago,
-              p_productos: productos,
-              p_total: total, 
+              p_usuario_id: usuario,
               p_estado: estado,
-              p_cliente: clienteSistema
+              p_productos: productos,
             })
 
         if (error) {
@@ -84,7 +112,7 @@ Promise<ApiResponse<string>> => {
 
         const mensaje = `Venta generada ${data}`;  
 
-        return {success:true,data:mensaje};
+        return {success:true,data:mensaje, count:1};
 }
 
 
@@ -104,4 +132,22 @@ const ventas = (datos || []).map((venta:any) => ({
 }))
 
   return ventas;
+}
+
+function mapearPedidos(datos: any){
+console.log('Datos:', datos);
+
+const pedidos = (datos || []).map((pedido: VentaPedido) => ({
+  venta_id: pedido.venta_id,
+  estado: pedido.estado,
+  fecha_venta: new Date(pedido.fecha_venta),
+  total: pedido.total,
+  cliente: pedido.usuarios == null ? 'Sin nombre' : pedido.usuarios.nombre,
+  direccion: pedido.usuarios == null ? 'Sin dirección' : pedido.usuarios.direccion,
+  productos: pedido.ventas_detalle.map((detalle: { productos: { nombre: any; }; precio_unitario: any; }) => ({
+         nombre: detalle.productos.nombre || 'Sin descripción',
+         precio_unitario: detalle.precio_unitario
+       }))
+}))
+  return pedidos;
 }
