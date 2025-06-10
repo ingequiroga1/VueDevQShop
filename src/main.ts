@@ -3,6 +3,7 @@ import './style.css'
 import App from './App.vue'
 import router from "./routes";
 import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 
 //Font awesome
@@ -18,6 +19,10 @@ const app = createApp(App)
 app.component('font-awesome-icon', FontAwesomeIcon);
 
 app.use(router);
-app.use(createPinia())
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+
+app.use(pinia)
 
 app.mount('#app')

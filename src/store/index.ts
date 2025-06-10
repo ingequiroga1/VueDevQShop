@@ -9,5 +9,6 @@ export const useprincipalStore = defineStore('principal', {
     setUser(userData:any){
             this.user = userData;
         },
-  }
+  },
+  persist: true, // 🔥 esta línea activa la persistencia
 })
