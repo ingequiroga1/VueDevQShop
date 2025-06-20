@@ -28,20 +28,6 @@ export const getProductos = async (searchQuery:string,currentPage:number,pageSiz
     }
     
     const {data,error,count} = await query
-    // const {data,error,count} = await supabase
-    //     .from('productos')
-    //     .select(`
-    //         producto_id,
-    //         nombre,
-    //         codigo_barras,
-    //         descripcion,
-    //         categorias(categoria_id, nombre),
-    //         precio_venta,
-    //         stock,
-    //         stock_minimo
-    //         `,{count:'exact'})
-    //     .eq('estado','Activo');
-        
         if (error) {
             console.error('Error fetching products:', error);
             return {success: false, error: error.message};
@@ -172,11 +158,10 @@ function mapearProducto(datos:any) {
         nombre: producto.nombre,
         codigo_barras: producto.codigo_barras,
         descripcion: producto.descripcion,
-        categorias: producto.categorias
-        ? [{
-            categoria_id: producto.categorias.categoria_id,
-            nombre: producto.categorias.nombre,
-        }]:[],
+        categorias: {
+          categoria_id: producto.categorias.categoria_id,
+          nombre: producto.categorias.nombre,
+        },
         precio_venta: producto.precio_venta,
         stock: producto.stock,
         stock_minimo: producto.stock_minimo,

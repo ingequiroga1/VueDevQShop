@@ -37,7 +37,7 @@
             class="hover:bg-gray-50 text-sm"
           >
             <td class="px-4 py-2">{{ product.nombre }}</td>
-            <td class="px-4 py-2">{{ product.categorias[0].nombre }}</td>
+            <td class="px-4 py-2">{{ product.categorias.nombre }}</td>
             <td
               class="px-4 py-2 font-medium"
               :class="{ 'text-red-600': product.stock < 5 }"
@@ -108,7 +108,7 @@
           <div>
             <label class="block text-sm font-medium mb-1">Categoría:</label>
             <select
-              v-model="productForm.categorias[0].categoria_id"
+              v-model="productForm.categorias.categoria_id"
               required
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             >
@@ -267,7 +267,7 @@ const categorias = ref([
 
 const productForm = ref({
   nombre: '',
-  categorias: {},
+  categorias: { categoria_id: '' },
   descripcion: '',
   codigo_barras: '',
   stock: 0,
@@ -279,6 +279,7 @@ const productForm = ref({
 // }
 
 const editProduct = (product) => {
+  console.log('Editing product:', product);
   editingProduct.value = product
   productForm.value = { ...product }
   showAddForm.value = true
@@ -289,7 +290,7 @@ const closeModal = () => {
   editingProduct.value = null
   productForm.value = {
     nombre: '',
-  categorias: {},
+  categorias: {categoria_id: ''},
   descripcion: '',
   codigo_barras: '',
   stock: 0,
@@ -304,7 +305,8 @@ const handleSubmit = () => {
       ...productForm.value
     })
   } else {
-    emit('add-product', { ...productForm.value })
+    //console.log(productForm.value);
+     emit('add-product', { ...productForm.value })
   }
   closeModal()
 }

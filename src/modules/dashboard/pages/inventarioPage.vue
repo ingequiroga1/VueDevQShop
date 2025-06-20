@@ -46,7 +46,6 @@ const onLoadProducts = async (busqueda:string,cuerrentPage:number,pageSize:numbe
     isLoading.value = true
     const response = await getProductos(busqueda, cuerrentPage, pageSize);
     isLoading.value = false
-
      if (!response.success) {
          alertType.value = 'error'
          showAlert.value = true
@@ -55,6 +54,8 @@ const onLoadProducts = async (busqueda:string,cuerrentPage:number,pageSize:numbe
          products.value = response.data;
          totalProducts.value = response.count;
      }
+     console.log('Productos cargados:', products.value);
+     
 }
 
 const addProduct = async (newProduct:ProductoPeticion) =>{

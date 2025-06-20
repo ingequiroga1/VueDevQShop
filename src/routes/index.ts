@@ -89,6 +89,19 @@ const router = createRouter({
                     path: '/pedidos',
                     name: 'pedidos',
                     component: () => import('../modules/dashboard/pages/pedidos.vue')
+                },
+                 {
+                    path: '/proveedores',
+                    name: 'proveedores',
+                    component: () => import('../modules/dashboard/pages/provPage.vue')
+                },
+                  {
+                    path: '/proveedor/:id',
+                    name: 'detalleProveedor',
+                    component: () => import('../modules/dashboard/pages/detalleProv.vue')
+                },
+                { path: '/nuevo', name: 'nuevo-proveedor',
+                    component: () => import('../modules/dashboard/pages/nuevoProvPage.vue')
                 }
             ]
         },

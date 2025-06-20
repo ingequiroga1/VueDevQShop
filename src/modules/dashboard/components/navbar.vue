@@ -21,9 +21,10 @@
         <RouterLink :to="{ name: 'home' }"> Home </RouterLink>
         <RouterLink :to="{ name: 'ventas' }"> Ventas </RouterLink>
         <RouterLink :to="{ name: 'inventario' }"> Inventario </RouterLink>
+        <RouterLink :to="{ name: 'proveedores' }"> Proveedores </RouterLink>
         <RouterLink :to="{ name: 'pedidos' }"> Pedidos </RouterLink>
         <RouterLink to="#"> Reportes </RouterLink>
-        <div class="flex items-center">
+        <!-- <div class="flex items-center">
           <button
             class="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600"
             @click="logout"
@@ -31,7 +32,34 @@
           >
             SignOut
           </button>
+        </div> -->
+        
+    <!-- Usuario (icono y menú desplegable) -->
+    <div class="relative" @click="toggleMenu">
+      <img
+        src="https://ui-avatars.com/api/?name=Juan+Quiroga&background=0D8ABC&color=fff"
+        alt="Avatar"
+        class="w-10 h-10 rounded-full cursor-pointer border-2 border-white shadow"
+      />
+
+      <!-- Menú desplegable -->
+      <div
+        v-if="menuAbierto"
+        class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50"
+      >
+        <div class="px-4 py-2">
+          <p class="text-sm font-semibold text-gray-800">Juan Quiroga</p>
+          <p class="text-xs text-gray-500">Administrador</p>
         </div>
+        <hr class="my-1" />
+        <button
+          @click="logout"
+          class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
       </nav>
     </div>
 
@@ -79,6 +107,11 @@ const logout = async() =>{
 }
 
 const isMenuOpen = ref(false);
+const menuAbierto = ref(false);
+
+function toggleMenu() {
+  menuAbierto.value = !menuAbierto.value
+}
 
 </script>
 
