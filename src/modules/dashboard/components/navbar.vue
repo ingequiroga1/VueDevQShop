@@ -23,15 +23,33 @@
         <RouterLink :to="{ name: 'inventario' }"> Inventario </RouterLink>
         <RouterLink :to="{ name: 'pedidos' }"> Pedidos </RouterLink>
         <RouterLink to="#"> Reportes </RouterLink>
-        <div class="flex items-center">
-          <button
-            class="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600"
-            @click="logout"
-            type="button"
-          >
-            SignOut
-          </button>
+        
+    <!-- Usuario (icono y menú desplegable) -->
+    <div class="relative" @click="toggleMenu" v-if="principalStore.user">
+      <img
+        src="https://ui-avatars.com/api/?name=Juan+Quiroga&background=0D8ABC&color=fff"
+        alt="Avatar"
+        class="w-10 h-10 rounded-full cursor-pointer border-2 border-white shadow"
+      />
+
+      <!-- Menú desplegable -->
+      <div
+        v-if="menuAbierto"
+        class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50"
+      >
+        <div class="px-4 py-2">
+          <p class="text-sm font-semibold text-gray-800">{{ principalStore.user.nombre }}</p>
+          <p class="text-xs text-gray-500">{{ principalStore.user.rol }}</p>
         </div>
+        <hr class="my-1" />
+        <button
+          @click="logout"
+          class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-100"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
       </nav>
     </div>
 
@@ -69,16 +87,27 @@
 
 import { ref } from "vue";
 import {  signOut } from "../../../services/auth/authService.ts";
+import { useprincipalStore } from '../../../store';
+
 
 const logout = async() =>{
-  const error = signOut();
+  const error = await signOut();
+  console.log(error);
   if (!error) {
-    console.log('Sesión cerrada');
-    
+    window.location.href = '/login';
+  } else {
+    console.error('Error al cerrar sesión:', error);
   }
+
 }
 
 const isMenuOpen = ref(false);
+const menuAbierto = ref(false);
+const principalStore = useprincipalStore();
+
+function toggleMenu() {
+  menuAbierto.value = !menuAbierto.value
+}
 
 </script>
 
