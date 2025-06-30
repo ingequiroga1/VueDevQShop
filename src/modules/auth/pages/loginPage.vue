@@ -59,7 +59,8 @@
 
     import { ref,computed, onMounted } from 'vue';
     import { useRouter } from "vue-router";
-    import {checkSession, setSession, signInWithEmail, signInWithGoogle} from '../../../services/auth/authService.ts'
+    //import {checkSession, setSession, signInWithEmail, signInWithGoogle} from '../../../services/auth/authService.ts'
+    import {checkSession, setSession, signInWithEmail} from '../../../services/auth/authService.ts'
     import Alert from '../../common/components/alertComponent.vue'
     import { useprincipalStore } from '../../../store';
 
@@ -138,7 +139,7 @@
         // localStorage.setItem('user',response.data?.user);
         // localStorage.setItem('userId',response.data?.user.email);
         // //user.value = response.data?.user;
-        const  {data, error} = await setSession(response.data.session.access_token, response.data.session.refresh_token);
+        const  {error} = await setSession(response.data.session.access_token, response.data.session.refresh_token);
         
          if (error) {
            console.error('Error al iniciar sesión:', error);
