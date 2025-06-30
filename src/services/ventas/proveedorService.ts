@@ -3,7 +3,42 @@ import { ApiResponse } from "../../types/api";
 import { supabase } from "../supabaseClient";
 
 
-export const crearProveedor = async (proveedor: Proveedor ) : Promise<ApiResponse<Proveedor>> =>{
+export const getProveedores = async (searchQuery: string, currentPage: number, pageSize: number): Promise<ApiResponse<Proveedor[]>> => {
+    let query = supabase
+        .from('proveedores')
+        .select(`
+            id,
+            nombre,
+            empresa,
+            correo,
+            telefono,
+            direccion,
+            notas,
+            imagen
+        `, { count: 'exact' })
+
+    if(searchQuery.trim()){
+        query.ilike('empresa',`%${searchQuery}%`)
+    }else{
+        const from = (currentPage-1)*pageSize
+        const to = from+pageSize-1
+        query = query.range(from,to)
+    }
+
+     const {data,error,count} = await query
+        if (error) {
+            console.error('Error fetching products:', error);
+            return {success: false, error: error.message};
+        }
+
+    const proveedores = mapearProveedor(data)
+    return {success:true, data: proveedores, count: count || 0}
+
+
+}
+
+
+export const crearProveedor = async (proveedor: Proveedor ) : Promise<ApiResponse<Proveedor[]>> =>{
     const {data,error:crearError} = await supabase 
         .from('proveedores')
         .insert([
@@ -14,7 +49,7 @@ export const crearProveedor = async (proveedor: Proveedor ) : Promise<ApiRespons
             telefono: proveedor.telefono,
             direccion: proveedor.direccion,
             notas: proveedor.notas,
-            imagen: `https://ui-avatars.com/api/?name=${proveedor.nombre}&background=0D8ABC&color=fff`
+            imagen: `https://ui-avatars.com/api/?name=${proveedor.empresa}&background=0D8ABC&color=fff`
             },])
         .select(`
             id,
@@ -47,6 +82,6 @@ function mapearProveedor(datos:any) {
         direccion: proveedor.direccion,
         notas: proveedor.notas,
         imagen: proveedor.imagen,
-    })) as Proveedor;
+    })) as Proveedor[];
     return proveedor;
 }

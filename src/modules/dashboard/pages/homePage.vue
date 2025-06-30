@@ -298,8 +298,9 @@ const cerrarModal = () => {
 }
 
 const generarVenta = async () => {
-    if(monto.value > totalVenta.value){
-        const respuesta = await guardarVenta(totalVenta.value,'Efectivo',principalStore.user.usuario_id,'Completa',productos);
+    if (principalStore.user) {
+         if(monto.value > totalVenta.value){
+        const respuesta = await guardarVenta(totalVenta.value,'Efectivo',parseInt(principalStore.user.usuario_id, 10),'Completa',productos);
     if (respuesta.success) {
         alertType.value = 'success';
         showAlert.value = true;
@@ -311,6 +312,11 @@ const generarVenta = async () => {
         alertType.value = 'warning';
         showAlert.value = true;
         alertMessage.value = 'El monto recibido es menor al total de la venta';
+    }   
+    }else{
+        alertType.value = 'error';
+        showAlert.value = true;
+        alertMessage.value = 'Debe iniciar sesión para generar una venta';
     }
 }
 

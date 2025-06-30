@@ -135,7 +135,7 @@
         // localStorage.setItem('user',response.data?.user);
         // localStorage.setItem('userId',response.data?.user.email);
         // //user.value = response.data?.user;
-        const  {data, error} = await setSession(response.data.session.access_token, response.data.session.refresh_token);
+        const  {error} = await setSession(response.data.session.access_token, response.data.session.refresh_token);
         
          if (error) {
            console.error('Error al iniciar sesión:', error);

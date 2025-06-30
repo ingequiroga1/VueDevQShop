@@ -2,11 +2,20 @@
   <div class="min-h-screen bg-gray-50 p-6">
     <div class="max-w-xl mx-auto bg-white rounded-lg shadow p-6">
       <h2 class="text-2xl font-bold text-gray-800 mb-6">Nuevo Proveedor</h2>
-
+      <div class="container mx-auto">
+        <Alert 
+        :type="alertType" 
+        :message="alertMessage"
+        :isVisible="showAlert" 
+        dismissible 
+        @close="handleClose"
+        v-show="showAlert"
+        />
+      </div>
       <form @submit.prevent="guardarProveedor" class="space-y-4">
         <!-- Nombre -->
         <div>
-          <label class="block text-gray-700 mb-1">Nombre:</label>
+          <label class="block text-gray-700 mb-1">*Nombre:</label>
           <input
             v-model="form.nombre"
             type="text"
@@ -17,7 +26,7 @@
 
         <!-- Empresa -->
         <div>
-          <label class="block text-gray-700 mb-1">Empresa:</label>
+          <label class="block text-gray-700 mb-1">*Empresa:</label>
           <input
             v-model="form.empresa"
             type="text"
@@ -28,7 +37,7 @@
 
         <!-- Teléfono -->
         <div>
-          <label class="block text-gray-700 mb-1">Teléfono:</label>
+          <label class="block text-gray-700 mb-1">*Teléfono:</label>
           <input
             v-model="form.telefono"
             type="tel"
@@ -39,7 +48,7 @@
 
         <!-- correo -->
         <div>
-          <label class="block text-gray-700 mb-1">Correo:</label>
+          <label class="block text-gray-700 mb-1">*Correo:</label>
           <input
             v-model="form.correo"
             type="email"
@@ -50,7 +59,7 @@
 
          <!-- Direccion -->
         <div>
-          <label class="block text-gray-700 mb-1">Dirección:</label>
+          <label class="block text-gray-700 mb-1">*Dirección:</label>
           <input
             v-model="form.direccion"
             type="text"
@@ -90,31 +99,57 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { crearProveedor } from '../../../services/ventas/proveedorService'
+import Alert from '../../common/components/alertComponent.vue'
+import { useprincipalStore } from '../../../store';
 
-const router = useRouter()
+const principalStore = useprincipalStore();
+
+
+const router = useRouter();
+const showAlert = ref(false);
+const alertMessage = ref('');
+const alertType = ref<'success'|'error'|'warning'|'info'>('info');
+
+
 
 const form = ref({
+  id: '',
   nombre: '',
   empresa: '',
   telefono: '',
   correo: '',
   direccion: '',
-  notas: ''
+  notas: '',
+  imagen: ''
 })
+
+
 
 const guardarProveedor = async () => {
   // Aquí podrías guardar en Supabase, Firebase, API, etc.
-  const response = await crearProveedor(form.value);
-  console.log('Proveedor guardado:', response)
-  // Redirige al listado de proveedores
-  router.push({ name: 'proveedores' })
+  //const response = await crearProveedor(form.value);
+  const response = await principalStore.createProveedor(form.value)
+  if (!response.success) {
+        alertType.value = 'error'
+        showAlert.value = true
+        alertMessage.value = `Error al registrar proveedor: ${response.error}`;
+    }
+    else
+    {
+       router.push({ name: 'proveedores' })
+    } 
 }
 
+ 
+  
 const cancelar = () => {
   router.push({ name: 'proveedores' })
 }
+
+const handleClose = () => {
+  showAlert.value = false;
+};
 </script>

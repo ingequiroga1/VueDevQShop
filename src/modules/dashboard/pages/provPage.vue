@@ -24,7 +24,7 @@
         :class="{ 'border-2 border-blue-400': proveedor.id === seleccionado }"
       >
         <img
-          src="https://ui-avatars.com/api/?name=Juan+Sanchez&background=007bff&color=fff&bold=true"
+          :src="proveedor.imagen"
           alt="Foto del proveedor"
           class="w-12 h-12 rounded-full mr-4 object-cover"
         />
@@ -54,47 +54,56 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
+<script setup lang="ts"> 
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Proveedor } from '../../../interfaces/Proveedor'
+import { useprincipalStore } from '../../../store';
+// import { getProveedores } from '../../../services/ventas/proveedorService'
+const principalStore = useprincipalStore();
+
 
 const router = useRouter()
 const busqueda = ref('')
 const seleccionado = ref(null)
 
-const proveedores = ref([
-  {
-    id: 1,
-    nombre: 'María López',
-    empresa: 'Distribuidora Central',
-    telefono: '0292 180',
-    imagen: 'https://randomuser.me/api/portraits/women/1.jpg'
-  },
-  {
-    id: 2,
-    nombre: 'Carlos Pérez',
-    empresa: 'Proveedor del Norte',
-    telefono: '0292 181',
-    imagen: 'https://randomuser.me/api/portraits/men/2.jpg'
-  }
-])
+const proveedores = ref<Proveedor[]>([]);
+
+onMounted(() => {
+  principalStore.fetchProveedores();
+});
 
 const proveedoresFiltrados = computed(() =>
-  proveedores.value.filter(p =>
+  principalStore.proveedores.filter(p =>
     p.nombre.toLowerCase().includes(busqueda.value.toLowerCase())
   )
 )
 
-const verDetalle = (id) => {
+// const onLoadProveedores = async () => {
+//   // Aquí podrías cargar los proveedores desde tu servicio
+//    const response = await getProveedores('',1,50);
+//   if (response.success) {
+//     console.log('Proveedores cargados:', response.data);
+//     proveedores.value = response.data;
+//   } else {
+//     console.log('Error al cargar proveedores:', response.error);
+    
+//     // alertType.value = 'error';
+//     // showAlert.value = true;
+//     // alertMessage.value = `Error al cargar proveedores: ${response.error}`;
+//    }
+//   }
+
+const verDetalle = (id:any) => {
   seleccionado.value = id
   router.push({ name: 'detalleProveedor', params: { id } })
 }
 
-const eliminarProveedor = (id) => {
+const eliminarProveedor = (id:any) => {
   proveedores.value = proveedores.value.filter(p => p.id !== id)
 }
 
-const editarProveedor = (id) => {
+const editarProveedor = (id:any) => {
   alert(`Editar proveedor con ID ${id}`)
 }
 
