@@ -27,7 +27,7 @@
     <!-- Usuario (icono y menú desplegable) -->
     <div class="relative" @click="toggleMenu" v-if="principalStore.user">
       <img
-        src="https://ui-avatars.com/api/?name=Juan+Quiroga&background=0D8ABC&color=fff"
+        :src=principalStore.getImagen
         alt="Avatar"
         class="w-10 h-10 rounded-full cursor-pointer border-2 border-white shadow"
       />
@@ -67,10 +67,10 @@
         v-show="isMenuOpen"
         class="sm:hidden absolute top-14 left-0 w-full bg-white shadow-md py-2 space-y-2"
       >
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'home' }">Home</RouterLink>
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'ventas' }">Ventas</RouterLink>
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'inventario' }">Inventario</RouterLink>
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'pedidos' }">Pedidos</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'home' }" @click="closeMenu">Home</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'ventas' }" @click="closeMenu">Ventas</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'inventario' }" @click="closeMenu">Inventario</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'pedidos' }" @click="closeMenu">Pedidos</RouterLink>
         <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" to="#">Reportes</RouterLink>
         <button
           class="block w-full text-left px-4 py-2 text-white bg-red-500 rounded-md text-sm font-medium hover:bg-red-600"
@@ -107,6 +107,10 @@ const principalStore = useprincipalStore();
 
 function toggleMenu() {
   menuAbierto.value = !menuAbierto.value
+}
+
+function closeMenu() {
+  isMenuOpen.value = false;
 }
 
 </script>
