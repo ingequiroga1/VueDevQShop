@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { Usuario } from '../interfaces/Auth'
 import { Proveedor } from '../interfaces/Proveedor';
-import { crearProveedor, getProveedores } from '../services/ventas/proveedorService';
+import { crearProveedor, eliminarProveedor, getProveedores } from '../services/ventas/proveedorService';
 
 
 export const useprincipalStore = defineStore('principal', {
@@ -25,8 +25,17 @@ export const useprincipalStore = defineStore('principal', {
     },
 
     async createProveedor(proveedor: Proveedor) {
-      const res = await crearProveedor(proveedor);
-      return res;
+      const response = await crearProveedor(proveedor);
+      if(response.success){
+        this.proveedores.unshift(response.data[0]);
+      }
+    },
+
+    async deleteProveedor(idProv:string) {
+      const response = await eliminarProveedor(idProv);
+      if(response.success){
+        this.proveedores = this.proveedores.filter(prov => prov.id !== idProv);
+      }
     },
 
     setUser(userData:any){

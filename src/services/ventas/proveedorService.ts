@@ -16,6 +16,7 @@ export const getProveedores = async (searchQuery: string, currentPage: number, p
             notas,
             imagen
         `, { count: 'exact' })
+        .eq('estado', 'Activo')
 
     if(searchQuery.trim()){
         query.ilike('empresa',`%${searchQuery}%`)
@@ -70,6 +71,22 @@ export const crearProveedor = async (proveedor: Proveedor ) : Promise<ApiRespons
      const proveedorMap = mapearProveedor(data)
      return {success:true, data: proveedorMap, count: 1}
 }
+
+export const eliminarProveedor = async (idProv:string):Promise<ApiResponse<null>> => {
+
+    const {error:deleteError} = await supabase
+        .from('proveedores')
+        .update({estado: 'Inactivo'})
+        .eq('id',idProv)
+
+    if (deleteError) {
+        console.error('Error al eliminar el proveedor:', deleteError);
+        return {success: false, error: deleteError.message}; 
+    }
+
+    return{success: true,data: null, count: 0}    
+}
+
 
 function mapearProveedor(datos:any) {
 

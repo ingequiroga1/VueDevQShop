@@ -37,19 +37,34 @@
         <div class="flex items-center space-x-3 text-gray-600">
           <span class="text-sm">📞 {{ proveedor.telefono }}</span>
           <button @click.stop="eliminarProveedor(proveedor.id)" class="hover:text-red-600">🗑️</button>
-          <button @click.stop="editarProveedor(proveedor.id)" class="hover:text-yellow-500">✏️</button>
+          <button @click.stop="editarProveedor(proveedor)" class="hover:text-yellow-500">✏️</button>
         </div>
       </div>
 
       <!-- Botón Nuevo -->
       <div class="flex justify-end">
         <button
-          @click="router.push({ name: 'nuevo-proveedor' })"
+          @click="nuevoProveedor"
           class="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 rounded-full shadow transition"
         >
           Nuevo
         </button>
       </div>
+      <ProveedorForm 
+      v-if="mostrarForm" 
+      :proveedor = "proveedorActual"
+      :modo="modo"
+      @guardado="cerrarForm"
+      @cerrar="cerrarForm"/>
+
+    <ConfirmComponent
+      v-if="mostrarConfirmacion"
+      titulo="Eliminar proveedor"
+      mensaje="¿Estás seguro de que deseas eliminar este proveedor? Esta acción no se puede deshacer."
+      @confirmar="eliminarProveedorConfirmado"
+      @cancelar="cerrarConfirmacion"
+    />
+
     </div>
   </div>
 </template>
@@ -59,15 +74,28 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Proveedor } from '../../../interfaces/Proveedor'
 import { useprincipalStore } from '../../../store';
-// import { getProveedores } from '../../../services/ventas/proveedorService'
+import ProveedorForm from '../components/proveedorForm.vue';
+import ConfirmComponent from '../../common/components/confirmComponent.vue';
 const principalStore = useprincipalStore();
 
 
 const router = useRouter()
 const busqueda = ref('')
 const seleccionado = ref(null)
+const mostrarConfirmacion = ref(false)
 
-const proveedores = ref<Proveedor[]>([]);
+const mostrarForm = ref(false)
+const proveedorActual = ref<Proveedor>({
+  id: '',
+  nombre: '',
+  empresa: '',
+  correo: '',
+  telefono: '',
+  direccion: '',
+  notas: '',
+  imagen: ''
+})
+const modo = ref('crear') // 'crear' o 'editar'
 
 onMounted(() => {
   principalStore.fetchProveedores();
@@ -79,32 +107,53 @@ const proveedoresFiltrados = computed(() =>
   )
 )
 
-// const onLoadProveedores = async () => {
-//   // Aquí podrías cargar los proveedores desde tu servicio
-//    const response = await getProveedores('',1,50);
-//   if (response.success) {
-//     console.log('Proveedores cargados:', response.data);
-//     proveedores.value = response.data;
-//   } else {
-//     console.log('Error al cargar proveedores:', response.error);
-    
-//     // alertType.value = 'error';
-//     // showAlert.value = true;
-//     // alertMessage.value = `Error al cargar proveedores: ${response.error}`;
-//    }
-//   }
-
 const verDetalle = (id:any) => {
   seleccionado.value = id
   router.push({ name: 'detalleProveedor', params: { id } })
 }
 
 const eliminarProveedor = (id:any) => {
-  proveedores.value = proveedores.value.filter(p => p.id !== id)
+  mostrarConfirmacion.value = true
+  seleccionado.value = id
 }
 
-const editarProveedor = (id:any) => {
-  alert(`Editar proveedor con ID ${id}`)
+const eliminarProveedorConfirmado = async () => {
+   if (seleccionado.value !== null) {
+     await principalStore.deleteProveedor(seleccionado.value)
+   } 
+  cerrarConfirmacion()
 }
+
+const editarProveedor = (proveedor:Proveedor) => {
+  proveedorActual.value = { ...proveedor }
+  modo.value = 'editar'
+  mostrarForm.value = true
+}
+
+const cerrarForm = () => {
+  mostrarForm.value = false
+}
+
+const nuevoProveedor = () => {
+  proveedorActual.value = {
+    id: '',
+    nombre: '',
+    empresa: '',
+    correo: '',
+    telefono: '',
+    direccion: '',
+    notas: '',
+    imagen: ''
+  }
+  modo.value = 'crear'
+  mostrarForm.value = true
+}
+
+const cerrarConfirmacion = () => {
+  seleccionado.value = null
+  mostrarConfirmacion.value = false
+}
+
+
 
 </script>
