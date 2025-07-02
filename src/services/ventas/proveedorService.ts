@@ -87,6 +87,30 @@ export const eliminarProveedor = async (idProv:string):Promise<ApiResponse<null>
     return{success: true,data: null, count: 0}    
 }
 
+export const editarProveedor = async(editProv: Proveedor) : Promise<ApiResponse<null>> => {
+    const {error:editError} = await supabase
+        .from('proveedores')
+        .update({
+            nombre:editProv.nombre,
+            empresa: editProv.empresa,
+            correo: editProv.correo,
+            telefono: editProv.telefono,
+            direccion: editProv.direccion,
+            notas: editProv.notas,
+            imagen: editProv.imagen || `https://ui-avatars.com/api/?name=${editProv.empresa}&background=0D8ABC&color=fff`
+            })
+        .eq('id',editProv.id)
+        .select()
+        
+        if (editError) {
+            console.error('Error al editar el producto:', editError);
+            return {success: false, error: editError.message};   
+        }
+
+        return{success: true,data: null , count: 0}
+}
+
+
 
 function mapearProveedor(datos:any) {
 

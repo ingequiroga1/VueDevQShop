@@ -125,7 +125,7 @@ watch(() => props.proveedor,nuevo => {
 
 const guardarProveedor = async () => {
  if (props.modo === 'editar') {
-    console.log('Actualizando proveedor:', form.value);    
+    await principalStore.updateProveedor(form.value)  
   } else {
     await principalStore.createProveedor(form.value)
   }

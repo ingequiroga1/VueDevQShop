@@ -8,3 +8,8 @@ export interface Proveedor{
     notas: string;
     imagen: string;
 }
+
+export interface mensaje {
+    tipo: 'success' | 'error';
+    mensaje: string;
+}   

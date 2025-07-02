@@ -7,27 +7,19 @@
 
     <!-- Contenido principal -->
     <div class="p-4 max-w-xl mx-auto">
+      <AlertComponent v-if="showAlert" :type="alertType" :message="alertMessage" dismissible @close="showAlert = false" />
+
       <!-- Input de búsqueda -->
-      <input
-        v-model="busqueda"
-        type="text"
-        placeholder="Buscar Proveedor"
-        class="w-full p-2 mb-4 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-      />
+      <input v-model="busqueda" type="text" placeholder="Buscar Proveedor"
+        class="w-full p-2 mb-4 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500" />
+
+
 
       <!-- Lista de proveedores -->
-      <div
-        v-for="proveedor in proveedoresFiltrados"
-        :key="proveedor.id"
-        @click="verDetalle(proveedor.id)"
+      <div v-for="proveedor in proveedoresFiltrados" :key="proveedor.id" @click="verDetalle(proveedor.id)"
         class="flex items-center bg-white rounded-lg shadow-sm p-4 mb-4 cursor-pointer hover:border-purple-500 transition border border-transparent"
-        :class="{ 'border-2 border-blue-400': proveedor.id === seleccionado }"
-      >
-        <img
-          :src="proveedor.imagen"
-          alt="Foto del proveedor"
-          class="w-12 h-12 rounded-full mr-4 object-cover"
-        />
+        :class="{ 'border-2 border-blue-400': proveedor.id === seleccionado }">
+        <img :src="proveedor.imagen" alt="Foto del proveedor" class="w-12 h-12 rounded-full mr-4 object-cover" />
 
         <div class="flex-1">
           <h3 class="text-lg font-medium text-gray-800">{{ proveedor.nombre }}</h3>
@@ -43,40 +35,35 @@
 
       <!-- Botón Nuevo -->
       <div class="flex justify-end">
-        <button
-          @click="nuevoProveedor"
-          class="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 rounded-full shadow transition"
-        >
+        <button @click="nuevoProveedor"
+          class="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 rounded-full shadow transition">
           Nuevo
         </button>
       </div>
-      <ProveedorForm 
-      v-if="mostrarForm" 
-      :proveedor = "proveedorActual"
-      :modo="modo"
-      @guardado="cerrarForm"
-      @cerrar="cerrarForm"/>
+      <ProveedorForm v-if="mostrarForm" :proveedor="proveedorActual" :modo="modo" @guardado="cerrarForm"
+        @cerrar="cerrarForm" />
 
-    <ConfirmComponent
-      v-if="mostrarConfirmacion"
-      titulo="Eliminar proveedor"
-      mensaje="¿Estás seguro de que deseas eliminar este proveedor? Esta acción no se puede deshacer."
-      @confirmar="eliminarProveedorConfirmado"
-      @cancelar="cerrarConfirmacion"
-    />
+      <ConfirmComponent v-if="mostrarConfirmacion" titulo="Eliminar proveedor"
+        mensaje="¿Estás seguro de que deseas eliminar este proveedor? Esta acción no se puede deshacer."
+        @confirmar="eliminarProveedorConfirmado" @cancelar="cerrarConfirmacion" />
 
     </div>
   </div>
 </template>
 
-<script setup lang="ts"> 
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Proveedor } from '../../../interfaces/Proveedor'
 import { useprincipalStore } from '../../../store';
 import ProveedorForm from '../components/proveedorForm.vue';
 import ConfirmComponent from '../../common/components/confirmComponent.vue';
+import AlertComponent from '../../common/components/alertComponent.vue';
 const principalStore = useprincipalStore();
+
+const showAlert =ref(false);
+const alertMessage = ref('');
+const alertType = ref<'success'|'error'|'warning'|'info'>('info');
 
 
 const router = useRouter()
@@ -107,24 +94,24 @@ const proveedoresFiltrados = computed(() =>
   )
 )
 
-const verDetalle = (id:any) => {
+const verDetalle = (id: any) => {
   seleccionado.value = id
   router.push({ name: 'detalleProveedor', params: { id } })
 }
 
-const eliminarProveedor = (id:any) => {
+const eliminarProveedor = (id: any) => {
   mostrarConfirmacion.value = true
   seleccionado.value = id
 }
 
 const eliminarProveedorConfirmado = async () => {
-   if (seleccionado.value !== null) {
-     await principalStore.deleteProveedor(seleccionado.value)
-   } 
+  if (seleccionado.value !== null) {
+    await principalStore.deleteProveedor(seleccionado.value)
+  }
   cerrarConfirmacion()
 }
 
-const editarProveedor = (proveedor:Proveedor) => {
+const editarProveedor = (proveedor: Proveedor) => {
   proveedorActual.value = { ...proveedor }
   modo.value = 'editar'
   mostrarForm.value = true
@@ -132,6 +119,12 @@ const editarProveedor = (proveedor:Proveedor) => {
 
 const cerrarForm = () => {
   mostrarForm.value = false
+  if (principalStore.msgProveedores) {
+     alertType.value = principalStore.msgProveedores.tipo 
+     showAlert.value = true;
+     alertMessage.value = principalStore.msgProveedores.mensaje;
+     principalStore.msgProveedores = null; // Limpiar error después de mostrar
+  }
 }
 
 const nuevoProveedor = () => {
@@ -152,6 +145,12 @@ const nuevoProveedor = () => {
 const cerrarConfirmacion = () => {
   seleccionado.value = null
   mostrarConfirmacion.value = false
+   if (principalStore.msgProveedores) {
+     alertType.value = principalStore.msgProveedores.tipo;
+     showAlert.value = true;
+     alertMessage.value = principalStore.msgProveedores.mensaje;
+     principalStore.msgProveedores = null; // Limpiar error después de mostrar
+  }
 }
 
 

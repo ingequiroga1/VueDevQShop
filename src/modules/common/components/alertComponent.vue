@@ -22,20 +22,35 @@
 </template>
 
 <script setup lang="ts">
-import {computed} from 'vue';
+import {computed, onMounted} from 'vue';
 
 
 type AlertType = 'success' | 'error' | 'warning' | 'info'; 
 
-defineProps<{
+const props = withDefaults(defineProps<{
   type: AlertType;
   icon?: string;
   message: string;
   dismissible?: boolean;
-}>();
+  timeout?: number;
+}>(), {
+  timeout: 5000, // 5 seconds
+  dismissible: false,
+});
+
+
 
 
 const emit = defineEmits(['close']);
+
+// Cierre automático
+onMounted(() => {
+  if (props.timeout > 0) {
+    setTimeout(() => {
+      closeAlert()
+    }, props.timeout)
+  }
+})
 
 
 const alertClasses = computed(() => ({
