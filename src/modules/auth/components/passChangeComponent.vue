@@ -53,7 +53,6 @@ import { useRouter } from 'vue-router';
         
         const response:AuthResponse = await updateUser(password.value);
          if (response.error) {
-             //console.log(response.error);
              errorMessage.value = response.error.message;
          }
          else{

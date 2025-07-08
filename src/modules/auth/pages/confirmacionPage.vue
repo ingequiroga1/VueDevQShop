@@ -36,20 +36,20 @@ onMounted(async () => {
 )
 
 const ingresar = async (token:string, refreshToken:string) => {
- const {data,error} = await setSession(token,refreshToken);
+ const {error} = await setSession(token,refreshToken);
   if (error) {
       console.error('Error al iniciar sesión:', error);
       return;
     }
     // Aquí puedes manejar la respuesta de la API después de iniciar sesión
-    console.log('Sesión iniciada con éxito:', data);
+  
     // Redirigir a la página principal o a donde desees
     router.push('/home');
     // Aquí puedes guardar el token en el almacenamiento local o en Vuex, según tu implementación
     // localStorage.setItem('token', token);
     // localStorage.setItem('refreshToken', refreshToken);
     // console.log('Token guardado en el almacenamiento local');
- console.log(data)
+
 };
 
 

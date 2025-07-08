@@ -54,7 +54,6 @@ export const getVentasPendientes = async (): Promise<ApiResponse<PedidoMapeado[]
 if (error) {
   return {success: false, error: error?.message || 'Error al obtener los datos'};
 }
-console.log('Data:', data);
 
 const ventas = mapearPedidos(data);
 return {success: true, data:ventas ,count: data?.length || 0};
@@ -135,7 +134,6 @@ const ventas = (datos || []).map((venta:any) => ({
 }
 
 function mapearPedidos(datos: any){
-console.log('Datos:', datos);
 
 const pedidos = (datos || []).map((pedido: VentaPedido) => ({
   venta_id: pedido.venta_id,

@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { Usuario } from '../interfaces/Auth'
 import { mensaje, Proveedor } from '../interfaces/Proveedor';
 import { crearProveedor, editarProveedor, eliminarProveedor, getProveedores } from '../services/ventas/proveedorService';
+import { ProductoRespuesta } from '../interfaces/Producto';
+import { getProductoxProv } from '../services/ventas/productoService';
 
 
 export const useprincipalStore = defineStore('principal', {
@@ -10,6 +12,8 @@ export const useprincipalStore = defineStore('principal', {
     proveedores: [] as Proveedor[],
     loading: false,
     msgProveedores: null as mensaje | null,
+    productosxproveedor: [] as ProductoRespuesta[],
+    msgProductos: null as mensaje | null,
   }),
   actions: {
     async fetchProveedores() {
@@ -26,6 +30,23 @@ export const useprincipalStore = defineStore('principal', {
     }
       this.loading = false;
     },
+    // obtener productos por proveedor 
+    async fetchProdxProv(idProveedor: string) {
+      this.loading = true;
+      const response = await getProductoxProv(idProveedor);
+      
+        if (response.success) {
+      this.productosxproveedor = response.data;
+    } else {
+
+      this.msgProductos = {
+        tipo: 'error',
+        mensaje: response.error || 'Error al cargar los productos del proveedor',
+      }
+    }
+      this.loading = false;
+    },
+
 
     async createProveedor(proveedor: Proveedor) {
       const response = await crearProveedor(proveedor);
@@ -73,6 +94,11 @@ export const useprincipalStore = defineStore('principal', {
             this.user = userData;
         },
     
+  },
+  getters: {
+    getProveedor: (state) => {
+      return (id:string) => state.proveedores.find(prov => prov.id === id);
+    } 
   },
   persist: true, // 🔥 esta línea activa la persistencia
 })

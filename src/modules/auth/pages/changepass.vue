@@ -45,10 +45,7 @@ import { useRouter } from 'vue-router';
       const router = useRouter();
 
       onMounted(async () => {
-        // console.log(accessToken, refreshToken); // Acceso directo
-        // const responseSession = await setSession(accessToken,refreshToken)
-        // console.log(responseSession);
-        
+  
 });
 
       const handleSubmit = async () => {
@@ -60,14 +57,8 @@ import { useRouter } from 'vue-router';
         }
         isSubmitting.value = true;
         
-        //const response:AuthResponse = await updateUser(password.value);
-         //if (response.error) {
-             //console.log(response.error);
-         //    errorMessage.value = response.error.message;
-         //}
-         //else{
              router.replace("/confirmpass");
-          //}     
+           
          isSubmitting.value = false;               
       };
 </script>

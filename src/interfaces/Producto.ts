@@ -9,6 +9,7 @@ export interface ProductoPeticion{
     stock_minimo:number;
     subtotal: number;
     cantidad: number;
+    idproveedor: string | null;
 }
 
 
@@ -26,4 +27,5 @@ export interface ProductoRespuesta{
     precio_venta: number;
     stock: number;
     stock_minimo:number;
+    idproveedor: string | null;
 }
