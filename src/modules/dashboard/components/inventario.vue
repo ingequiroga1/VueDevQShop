@@ -108,7 +108,7 @@
           <div>
             <label class="block text-sm font-medium mb-1">Categoría:</label>
             <select
-              v-model="productForm.categorias[0].categoria_id"
+              v-model="productForm.categorias.categoria_id"
               required
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             >

@@ -54,6 +54,7 @@ const onLoadProducts = async (busqueda:string,cuerrentPage:number,pageSize:numbe
      }else{
          products.value = response.data;
          totalProducts.value = response.count;
+         
      }
 }
 
