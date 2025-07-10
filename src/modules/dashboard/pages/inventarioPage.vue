@@ -12,11 +12,18 @@
         @delete-product="deleteProduct"
         @cambiar-pagina="cambiarPagina"
       />
+   
+    <ModalProductos 
+        v-if="principalStore.showModalProductos"
+        />
+
+
 </template>
 
 <script setup lang="ts">
 import {ref, onMounted} from 'vue';
 import Inventory from '../../dashboard/components/inventario.vue';
+import ModalProductos from '../../dashboard/components/modalProductos.vue';
 import {crearProducto, deleteProducto, editarProducto, getProductos} from '../../../services/ventas/productoService.ts';
 import { ProductoPeticion, ProductoRespuesta } from '../../../interfaces/Producto.ts';
 import Alert from '../../common/components/alertComponent.vue'

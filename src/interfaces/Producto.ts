@@ -3,7 +3,7 @@ export interface ProductoPeticion{
     nombre: string;
     codigo_barras: string;
     descripcion: string,
-    categorias:Categoria | null,
+    categorias:Categoria,
     precio_venta: number;
     stock: number;
     stock_minimo:number;
@@ -23,7 +23,7 @@ export interface ProductoRespuesta{
     nombre: string;
     codigo_barras: string;
     descripcion: string;
-    categorias: Categoria | null;
+    categorias: Categoria;
     precio_venta: number;
     stock: number;
     stock_minimo:number;
