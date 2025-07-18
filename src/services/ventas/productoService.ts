@@ -15,7 +15,8 @@ export const getProductos = async (searchQuery:string,currentPage:number,pageSiz
              categorias(categoria_id, nombre),
              precio_venta,
              stock,
-             stock_minimo
+             stock_minimo,
+             id_proveedor
              `,{count:'exact'})
          .eq('estado','Activo')
 
@@ -28,20 +29,6 @@ export const getProductos = async (searchQuery:string,currentPage:number,pageSiz
     }
     
     const {data,error,count} = await query
-    // const {data,error,count} = await supabase
-    //     .from('productos')
-    //     .select(`
-    //         producto_id,
-    //         nombre,
-    //         codigo_barras,
-    //         descripcion,
-    //         categorias(categoria_id, nombre),
-    //         precio_venta,
-    //         stock,
-    //         stock_minimo
-    //         `,{count:'exact'})
-    //     .eq('estado','Activo');
-        
         if (error) {
             console.error('Error fetching products:', error);
             return {success: false, error: error.message};
@@ -63,7 +50,8 @@ export const getProductoxCB = async (codigo_barras: string): Promise<ApiResponse
             categorias(categoria_id, nombre),
             precio_venta,
             stock,
-            stock_minimo
+            stock_minimo,
+            id_proveedor
         `)
         .eq('codigo_barras', codigo_barras)
         .eq('estado', 'Activo')
@@ -86,6 +74,41 @@ export const getProductoxCB = async (codigo_barras: string): Promise<ApiResponse
     }
 }
 
+export const getProductoxProv = async (idProveedor: string): Promise<ApiResponse<ProductoRespuesta[]>> => {
+    try {
+        const { data, error } = await supabase
+        .from('productos')
+        .select(`
+            producto_id,
+            nombre,
+            codigo_barras,
+            descripcion,
+            categorias(categoria_id, nombre),
+            precio_venta,
+            stock,
+            stock_minimo,
+            id_proveedor
+        `)
+        .eq('id_proveedor', idProveedor)
+        .eq('estado', 'Activo')
+
+        if (error) {
+            console.error('Error fetching products:', error);
+            return { success: false, error: error.message };
+        }
+
+        if (!data) {
+            return { success: false, error: 'Producto no encontrado' };
+        }
+
+        const productosMapeados = mapearProducto(data);
+        return { success: true, data: productosMapeados, count: productosMapeados.length };
+    }catch (err) {
+        console.error('Unexpected error:', err);
+        return { success: false, error: 'Error inesperado' };
+    }
+}
+
 
 export const crearProducto = async (producto: ProductoPeticion) : Promise<ApiResponse<ProductoRespuesta[]>> =>{
     const {data,error:crearError} = await supabase 
@@ -100,6 +123,7 @@ export const crearProducto = async (producto: ProductoPeticion) : Promise<ApiRes
             precio_venta: producto.precio_venta,
             stock: producto.stock,
             stock_minimo: 5,
+            id_proveedor: producto.idproveedor || null,
             estado: "Activo",
             },])
         .select(`
@@ -110,7 +134,8 @@ export const crearProducto = async (producto: ProductoPeticion) : Promise<ApiRes
             precio_venta,
             stock,
             stock_minimo,
-            categorias(categoria_id, nombre)
+            categorias(categoria_id, nombre),
+            id_proveedor
             `)
         
     if (crearError) {
@@ -153,6 +178,7 @@ export const editarProducto = async(editProd: ProductoPeticion) : Promise<ApiRes
             precio_compra: editProd.precio_venta,
             precio_venta: editProd.precio_venta,
             stock: editProd.stock,
+            id_proveedor: editProd.idproveedor,            
             })
         .eq('producto_id',editProd.producto_id)
         .select()
@@ -172,14 +198,14 @@ function mapearProducto(datos:any) {
         nombre: producto.nombre,
         codigo_barras: producto.codigo_barras,
         descripcion: producto.descripcion,
-        categorias: producto.categorias
-        ? [{
-            categoria_id: producto.categorias.categoria_id,
-            nombre: producto.categorias.nombre,
-        }]:[],
+        categorias: {
+          categoria_id: producto.categorias.categoria_id,
+          nombre: producto.categorias.nombre,
+        },
         precio_venta: producto.precio_venta,
         stock: producto.stock,
         stock_minimo: producto.stock_minimo,
+        idproveedor: producto.id_proveedor || null,
     })) as ProductoRespuesta[];
 
     return productos;

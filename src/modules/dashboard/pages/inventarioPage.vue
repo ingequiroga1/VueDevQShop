@@ -1,13 +1,6 @@
 <template>
     <div class="container mx-auto">
-        <Alert 
-        :type="alertType" 
-        :message="alertMessage"
-        :isVisible="showAlert" 
-        dismissible 
-        @close="handleClose"
-        v-show="showAlert"
-        />
+        <Alert v-if="showAlert" :type="alertType" :message="alertMessage" dismissible @close="showAlert = false" />
     </div>
     <loadingSpinner :isLoading="isLoading" />
     <Inventory 
@@ -35,6 +28,7 @@ import {crearProducto, deleteProducto, editarProducto, getProductos} from '../..
 import { ProductoPeticion, ProductoRespuesta } from '../../../interfaces/Producto.ts';
 import Alert from '../../common/components/alertComponent.vue'
 import loadingSpinner from '../../common/components/loadingSpinner.vue';
+import { useprincipalStore } from '../../../store/index.ts';
 
 
 const products = ref<ProductoRespuesta[]>([]);
@@ -44,16 +38,17 @@ const alertType = ref<'success'|'error'|'warning'|'info'>('info');
 const isLoading = ref(false)
 const searchQuery = ref<string>('');
 const totalProducts = ref<number>(0);
+const principalStore = useprincipalStore();
 
 onMounted(() => {
     onLoadProducts('',1,50);
+    onLoadProveedores();
 });
 
 const onLoadProducts = async (busqueda:string,cuerrentPage:number,pageSize:number) => {
     isLoading.value = true
     const response = await getProductos(busqueda, cuerrentPage, pageSize);
     isLoading.value = false
-
      if (!response.success) {
          alertType.value = 'error'
          showAlert.value = true
@@ -61,8 +56,8 @@ const onLoadProducts = async (busqueda:string,cuerrentPage:number,pageSize:numbe
      }else{
          products.value = response.data;
          totalProducts.value = response.count;
-         
      }
+     
 }
 
 const addProduct = async (newProduct:ProductoPeticion) =>{
@@ -123,10 +118,6 @@ const updateProduct = async (editProduct:ProductoPeticion) =>{
     
 }
 
-const handleClose = () => {
-  showAlert.value = false;
-};
-
 const cambiarPagina = (pagina:number) => {
     onLoadProducts(searchQuery.value,pagina,50);
 }
@@ -136,6 +127,9 @@ const filtrarProducts = (query:string) => {
     onLoadProducts(query,1,50);
 }
 
+const onLoadProveedores = async ()=> {
+     await principalStore.fetchProveedores();
+}
 
 
 
