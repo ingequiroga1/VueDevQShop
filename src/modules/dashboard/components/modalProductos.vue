@@ -1,21 +1,21 @@
 <template>
     <div
-    v-if="principalStore.showModalProductos"
+    v-if="visible"
       class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div
         class="bg-white rounded-lg p-4 sm:p-6 w-[95%] max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl overflow-y-auto max-h-[90vh] scroll-pb-32">
         <h3 class="text-lg font-semibold mb-4">
-          {{ principalStore.editingProduct ? "Editar" : "Agregar" }} Producto
+          {{ esEdicion ? "Editar" : "Agregar" }} Producto
         </h3>
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-sm font-medium mb-1">Nombre:</label>
-            <input v-model="principalStore.editingProduct.nombre" type="text" required
+            <input v-model="producto.nombre" type="text" required
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Categoría:</label>
-            <select v-model="principalStore.editingProduct.categorias.categoria_id" required
+            <select v-model="producto.categorias.categoria_id" required
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
               <option value="" disabled>Seleccione una categoría</option>
               <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
@@ -25,27 +25,27 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Descripción:</label>
-            <textarea v-model="principalStore.editingProduct.descripcion" required
+            <textarea v-model="producto.descripcion" required
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"></textarea>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Código de barras:</label>
-            <input v-model="principalStore.editingProduct.codigo_barras" required
+            <input v-model="producto.codigo_barras" required
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"></input>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Stock:</label>
-            <input v-model.number="principalStore.editingProduct.stock" type="number" required min="0"
+            <input v-model.number="producto.stock" type="number" required min="0"
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Precio:</label>
-            <input v-model.number="principalStore.editingProduct.precio_venta" type="number" required min="0" step="0.01"
+            <input v-model.number="producto.precio_venta" type="number" required min="0" step="0.01"
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Proveedor:</label>
-            <select v-model="principalStore.editingProduct.idproveedor"
+            <select v-model="producto.idproveedor"
               class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300">
               <option value="" disabled>Seleccione un proveedor</option>
               <option v-for="proveedor in principalStore.proveedores" :key="proveedor.id" :value="proveedor.id">
@@ -62,9 +62,9 @@
           <!-- Botones adaptados a pantallas pequeñas -->
           <div class="flex flex-col sm:flex-row sm:justify-end gap-2 mt-4">
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              {{ principalStore.editingProduct ? "Actualizar" : "Agregar" }}
+              {{ esEdicion ? "Actualizar" : "Agregar" }}
             </button>
-            <button type="button" @click="closeModal"
+            <button type="button" @click="cerrarModal"
               class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
               Cancelar
             </button>
@@ -75,9 +75,48 @@
 </template>
 
 <script setup lang="ts"> 
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
 import { useprincipalStore } from '../../../store';
+import { ProductoPeticion } from '../../../interfaces/Producto';
 
+const emit = defineEmits(['cerrar', 'producto-guardado']);
+const principalStore = useprincipalStore();
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    required: true
+  },
+  productoEditar: {
+    type: Object,
+    default: () => ({
+      producto_id: 0,
+      nombre: '',
+      descripcion: '',
+      codigo_barras: '',
+      stock: 0,
+      stock_minimo: 0,
+      precio_venta: 0,
+      idproveedor: '',
+      categorias: { categoria_id: 0, nombre: '' }
+    })
+  }
+});
+
+const producto = ref<ProductoPeticion>({
+  producto_id: 0,
+  nombre: '',
+  descripcion: '',
+  codigo_barras: '',
+  stock: 0,
+  stock_minimo: 0,
+  precio_venta: 0,
+  idproveedor: '',
+  categorias: { categoria_id: 0, nombre: '' },
+  subtotal: 0,
+  cantidad: 0
+});
+
+const esEdicion = ref(false);
 
 const categorias = ref([
   { id: 1, nombre: 'Refrescos' },
@@ -101,17 +140,43 @@ const categorias = ref([
   { id: 19, nombre: 'SIN CATEGORIA' }
 ])
 
-const principalStore = useprincipalStore();
+watch(() => props.productoEditar, (nuevo:any) => {
+  if (nuevo.producto_id > 0) {
+    // Resetear el producto al abrir el modal
+    producto.value = { ...nuevo };
+
+    esEdicion.value = true;
+  }else{
+    producto.value = {
+      producto_id: 0,
+      nombre: '',
+      descripcion: '',
+      codigo_barras: '',
+      stock: 0,
+      stock_minimo: 0,
+      precio_venta: 0,
+      idproveedor: '',
+      categorias: { categoria_id: 0, nombre: '' },
+      subtotal: 0,
+      cantidad: 0
+    };
+    esEdicion.value = false;
+  }
+}, { immediate: true });
+
+const cerrarModal = () => {
+  emit('cerrar');
+}
 
 const handleSubmit = () => {
-  if (principalStore.editingProduct) {
-     principalStore.updateProducto()
-     
+  const principalStore = useprincipalStore();
+  if (esEdicion.value) {
+     principalStore.updateProducto(producto.value)
   } 
-//   else {
-//     emit('add-product', { ...productForm.value })
-//   }
-  principalStore.showModalProductos = false;
+   else {
+    principalStore.addProducto(producto.value); 
+  }
+
   principalStore.editingProduct = { 
         producto_id: 0,
         nombre: '',
@@ -123,25 +188,9 @@ const handleSubmit = () => {
         idproveedor: '',
         categorias: { categoria_id: 0, nombre: '' }
 }
+emit('cerrar');
 }
 
-const closeModal = () => {
-  principalStore.showModalProductos = false;
-  principalStore.editingProduct = { 
-        producto_id: 0,
-        nombre: '',
-        descripcion: '',
-        codigo_barras: '',
-        stock: 0,
-        stock_minimo: 0,
-        precio_venta: 0,
-        idproveedor: '',
-        categorias: { categoria_id: 0, nombre: '' }
-};
-}
 
 </script>
 
-<style scoped>
-
-</style>

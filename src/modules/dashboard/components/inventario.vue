@@ -2,7 +2,7 @@
   <div class="container mx-auto p-4 bg-white rounded-lg shadow">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">Gestión de Inventario</h2>
-      <button @click="addProduct" class="bg-primary-color text-white px-4 py-2 rounded hover:bg-blue-700">
+      <button @click="$emit('add-producto')" class="bg-primary-color text-white px-4 py-2 rounded hover:bg-blue-700">
         Agregar Producto
       </button>
     </div>
@@ -34,7 +34,7 @@
             class="hover:bg-gray-50 text-sm"
           >
             <td class="px-4 py-2">{{ product.nombre }}</td>
-            <td class="px-4 py-2">{{ product.categorias[0].nombre }}</td>
+            <td class="px-4 py-2">{{ product.categorias.nombre }}</td>
             <td
               class="px-4 py-2 font-medium"
               :class="{ 'text-red-600': product.stock < 5 }"
@@ -45,7 +45,7 @@
             <td class="px-4 py-2">{{ product.codigo_barras }}</td>
             <td class="px-4 py-2 flex gap-2">
               <button
-                @click="editProduct(product)"
+                @click="$emit('editar-producto',product)"
                 class="bg-primary-color text-white px-2 py-1 rounded hover:bg-blue-600"
               >
                 Editar
@@ -128,9 +128,9 @@ defineProps({
     type: Number,
     required: true
   }
-})
+});
 
-const emit = defineEmits(['update-product', 'add-product', 'delete-product','filtrar-product','cambiar-pagina'])
+const emit = defineEmits(['editar-producto','filtrar-product','cambiar-pagina','add-producto'])
 
 const showAddForm = ref(false)
 const editingProduct = ref(null)
@@ -156,10 +156,7 @@ const productForm = ref({
 //   return (((product.price - product.cost) / product.price) * 100).toFixed(1)
 // }
 
-const editProduct = (product) => {
-  principalStore.editingProduct = product
-  principalStore.showModalProductos = true
-}
+
 
 const addProduct = () => {
   principalStore.showModalProductos = true

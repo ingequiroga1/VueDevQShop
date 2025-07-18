@@ -3,13 +3,15 @@ import { Usuario } from '../interfaces/Auth'
 import { mensaje, Proveedor } from '../interfaces/Proveedor';
 import { crearProveedor, editarProveedor, eliminarProveedor, getProveedores } from '../services/ventas/proveedorService';
 import { ProductoPeticion, ProductoRespuesta } from '../interfaces/Producto';
-import { editarProducto, getProductoxProv } from '../services/ventas/productoService';
+import { crearProducto, editarProducto, getProductos, getProductoxProv } from '../services/ventas/productoService';
 
 
 export const useprincipalStore = defineStore('principal', {
   state: () => ({
     user: null as Usuario | null,
     proveedores: [] as Proveedor[],
+    productos: [] as ProductoRespuesta[],
+    numeroProductos: 0,
     loading: false,
     msgProveedores: null as mensaje | null,
     productosxproveedor: [] as ProductoRespuesta[],
@@ -86,6 +88,18 @@ export const useprincipalStore = defineStore('principal', {
     },
 
     //Productos
+    async fetchProducts(busqueda:string, currentPage:number, pageSize:number){
+      const response = await getProductos(busqueda, currentPage, pageSize);
+      if (response.success) {
+        this.numeroProductos = response.count || 0; // Actualiza el número total de productos
+        this.productos = response.data;
+      } else {
+        this.msgProductos = {
+          tipo: 'error',
+          mensaje: response.error || 'Error al cargar los productos',
+        }
+      }
+    },
     // obtener productos por proveedor 
     async fetchProdxProv(idProveedor: string) {
       this.loading = true;
@@ -108,26 +122,13 @@ export const useprincipalStore = defineStore('principal', {
       this.editingProduct = producto; // Asigna el producto a editar
     },
 
-    async updateProducto() {
+    async updateProducto(producto: ProductoPeticion) {
       this.loading = true;
-      const producto: ProductoPeticion = {
-        producto_id: this.editingProduct.producto_id,
-        nombre: this.editingProduct.nombre,
-        codigo_barras: this.editingProduct.codigo_barras,
-        descripcion: this.editingProduct.descripcion,
-        categorias: this.editingProduct.categorias,
-        precio_venta: this.editingProduct.precio_venta,
-        stock: this.editingProduct.stock,
-        stock_minimo: this.editingProduct.stock_minimo,
-        subtotal: 0, // Asignar un valor por defecto o calcularlo si es necesario
-        cantidad: 0, // Asignar un valor por defecto o calcularlo si es necesario
-        idproveedor: this.editingProduct.idproveedor || null, // Asegurarse de que idproveedor no sea undefined
-      }
         const response = await editarProducto(producto);
        if (response.success) {
-         const index = this.productosxproveedor.findIndex(prod => prod.producto_id === producto.producto_id);
+         const index = this.productos.findIndex(prod => prod.producto_id === producto.producto_id);
          if (index !== -1) {
-           this.productosxproveedor[index] = producto; // Actualiza el producto en la lista
+           this.productos[index] = producto; // Actualiza el producto en la lista
          }
          this.msgProductos = {
            tipo: 'success',
@@ -139,6 +140,24 @@ export const useprincipalStore = defineStore('principal', {
            mensaje: response.error || 'Error al actualizar el producto',
          }
        }
+    },
+
+    async addProducto(newProduct: ProductoPeticion) {
+      this.loading = true;
+     const response = await crearProducto(newProduct);
+    if (!response.success) {
+       this.msgProductos = {
+           tipo: 'success',
+           mensaje: 'Producto creado correctamente',
+         };
+    }
+    else {
+        this.msgProductos = {
+           tipo: 'error',  
+           mensaje: 'Error al agregar el producto',
+         }
+    }
+      this.loading = false;
     },
 
 
