@@ -8,30 +8,55 @@
         @filtrar-product="filtrarProducts"
             @editar-producto="abrirModalEditar"
             @add-producto="abrirModalAdd"
-            @cambiar-pagina="cambiarPagina" />
-
+            @delete-producto="abrirModalDelete"
+            @cambiar-pagina="cambiarPagina" 
+        />
         <ModalProductos 
         :visible="ModalVisible"
         :productoEditar="productoSeleccionado"
         @cerrar="cerrarModal" 
         />
-    </div>
 
+        <!-- Modal de confirmación de eliminación -->
+    <div
+      v-if="showDeleteConfirm"
+      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+    >
+      <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+        <h3 class="text-lg font-semibold mb-4">Confirmar Eliminación</h3>
+        <p class="text-sm mb-4">
+          ¿Estás seguro de que deseas eliminar este producto?
+        </p>
+        <div class="flex justify-end gap-2">
+          <button
+            @click="onDeleteProduct"
+            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Eliminar
+          </button>
+          <button
+            @click="showDeleteConfirm = false"
+            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+    </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import Inventory from '../../dashboard/components/inventario.vue';
 import ModalProductos from '../../dashboard/components/modalProductos.vue';
-import { crearProducto, deleteProducto, editarProducto } from '../../../services/ventas/productoService.ts';
-import { ProductoPeticion, ProductoRespuesta } from '../../../interfaces/Producto.ts';
+import { ProductoPeticion } from '../../../interfaces/Producto.ts';
 import Alert from '../../common/components/alertComponent.vue'
 import loadingSpinner from '../../common/components/loadingSpinner.vue';
 import { useprincipalStore } from '../../../store/index.ts';
 
 const principalStore = useprincipalStore();
 
-const products = ref<ProductoRespuesta[]>([]);
 const showAlert = ref(false);
 const alertMessage = ref<string>('');
 const alertType = ref<'success' | 'error' | 'warning' | 'info'>('info');
@@ -40,6 +65,7 @@ const searchQuery = ref<string>('');
 
 
 const ModalVisible = ref(false);
+const showDeleteConfirm = ref(false)
 const productoSeleccionado = ref<ProductoPeticion>({
     producto_id: 0,
     nombre: '',
@@ -53,9 +79,16 @@ const productoSeleccionado = ref<ProductoPeticion>({
     subtotal: 0,
     cantidad: 0,
 });
+const idProductoEliminar = ref(0);
 
 const cerrarModal = () => {
     ModalVisible.value = false;
+     if (principalStore.msgProductos) {
+     alertType.value = principalStore.msgProductos.tipo; 
+     showAlert.value = true;
+     alertMessage.value = principalStore.msgProductos.mensaje;
+     principalStore.msgProveedores = null; // Limpiar error después de mostrar
+  }
 }
 
 const abrirModalEditar = (producto: ProductoPeticion) => {
@@ -65,6 +98,11 @@ const abrirModalEditar = (producto: ProductoPeticion) => {
 
 const abrirModalAdd = () => {
     ModalVisible.value = true;
+}
+
+const abrirModalDelete = (productId: string) => {
+  idProductoEliminar.value = Number(productId);
+  showDeleteConfirm.value = true;
 }
 
 
@@ -78,62 +116,18 @@ const onLoadProducts = async (busqueda: string, cuerrentPage: number, pageSize: 
     isLoading.value = false
 }
 
-const addProduct = async (newProduct: ProductoPeticion) => {
-    const response = await crearProducto(newProduct);
-    if (!response.success) {
-        alertType.value = 'error'
-        showAlert.value = true
-        alertMessage.value = `Error al crear el producto: ${response.error}`;
-    }
-    else {
-        alertType.value = 'success'
-        showAlert.value = true
-        alertMessage.value = `Se agrego el nuevo producto`;
-        products.value.push(response.data[0])
-    }
-
+const onDeleteProduct = async () => {
+    await principalStore.deleteProducto(idProductoEliminar.value);
+    showDeleteConfirm.value = false;
+    idProductoEliminar.value = 0;
+      if (principalStore.msgProductos) {
+     alertType.value = principalStore.msgProductos.tipo; 
+     showAlert.value = true;
+     alertMessage.value = principalStore.msgProductos.mensaje;
+     principalStore.msgProveedores = null; // Limpiar error después de mostrar
+  }
 }
 
-const deleteProduct = async (idProd: number) => {
-    const response = await deleteProducto(idProd);
-    if (!response.success) {
-        alertType.value = 'error'
-        showAlert.value = true
-        alertMessage.value = `Error al eliminar producto: ${response.error}`;
-    }
-
-    alertType.value = 'success'
-    showAlert.value = true
-    alertMessage.value = "Se elimino el producto";
-    products.value = products.value.filter(producto => producto.producto_id !== idProd);
-
-}
-
-const updateProduct = async (editProduct: ProductoPeticion) => {
-    const response = await editarProducto(editProduct);
-    if (!response.success) {
-        alertType.value = 'error'
-        showAlert.value = true
-        alertMessage.value = `Error al actualizar: ${response.error}`;
-    }
-
-    const index = products.value.findIndex(
-        product => product.producto_id === editProduct.producto_id
-    );
-
-    if (index !== -1) {
-        products.value[index] = { ...products.value[index], ...editProduct };
-    } else {
-        alertType.value = 'error'
-        showAlert.value = true
-        alertMessage.value = `Error no se encontro el producto`;
-    }
-
-    alertType.value = 'success'
-    showAlert.value = true
-    alertMessage.value = `Se actualizo el producto: ${editProduct.nombre}`;
-
-}
 
 const handleClose = () => {
     showAlert.value = false;
@@ -147,8 +141,5 @@ const filtrarProducts = (query: string) => {
     searchQuery.value = query;
     onLoadProducts(query, 1, 50);
 }
-
-
-
 
 </script>

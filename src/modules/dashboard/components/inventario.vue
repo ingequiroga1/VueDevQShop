@@ -51,7 +51,7 @@
                 Editar
               </button>
               <button
-                @click="confirmDelete(product.producto_id)"
+                @click="$emit('delete-producto', product.producto_id)"
                 class="bg-secondary-color text-white px-2 py-1 rounded hover:bg-red-600"
               >
                 Eliminar
@@ -83,33 +83,6 @@
       </div>
     </div>
 
-    <!-- Modal de confirmación de eliminación -->
-    <div
-      v-if="showDeleteConfirm"
-      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-    >
-      <div class="bg-white rounded-lg p-6 w-full max-w-sm">
-        <h3 class="text-lg font-semibold mb-4">Confirmar Eliminación</h3>
-        <p class="text-sm mb-4">
-          ¿Estás seguro de que deseas eliminar este producto?
-        </p>
-        <div class="flex justify-end gap-2">
-          <button
-            @click="deleteProduct"
-            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Eliminar
-          </button>
-          <button
-            @click="showDeleteConfirm = false"
-            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 
@@ -130,7 +103,8 @@ defineProps({
   }
 });
 
-const emit = defineEmits(['editar-producto','filtrar-product','cambiar-pagina','add-producto'])
+const emit = defineEmits(['editar-producto','filtrar-product',
+'cambiar-pagina','add-producto','delete-producto']);
 
 const showAddForm = ref(false)
 const editingProduct = ref(null)
@@ -142,60 +116,6 @@ const pageSize = 10
 
 
 
-
-const productForm = ref({
-  nombre: '',
-  categorias: {},
-  descripcion: '',
-  codigo_barras: '',
-  stock: 0,
-  precio_venta: 0,
-})
-
-// const calculateMargin = (product) => {
-//   return (((product.price - product.cost) / product.price) * 100).toFixed(1)
-// }
-
-
-
-const addProduct = () => {
-  principalStore.showModalProductos = true
-  principalStore.editingProduct = {
-    nombre: '',
-    categorias: { categoria_id: '' },
-    descripcion: '',
-    codigo_barras: '',
-    stock: 0,
-    precio_venta: 0,
-    idproveedor: ''
-  }
-}
-
-const closeModal = () => {
-  showAddForm.value = false
-  editingProduct.value = null
-  productForm.value = {
-    nombre: '',
-  categorias: {},
-  descripcion: '',
-  codigo_barras: '',
-  stock: 0,
-  precio_venta: 0,
-  }
-}
-
-
-
-const confirmDelete = (productId) => {
-  deleteProductId.value = productId
-  showDeleteConfirm.value = true
-}
-
-const deleteProduct = () => {
-  emit('delete-product', deleteProductId.value)
-  showDeleteConfirm.value = false
-  deleteProductId.value = null
-}
 
 const cambiarPagina = () => {
   emit('cambiar-pagina', currentPage.value)

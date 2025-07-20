@@ -146,7 +146,7 @@ export const crearProducto = async (producto: ProductoPeticion) : Promise<ApiRes
     return {success:true, data: productos, count: productos.length}
 }
 
-export const deleteProducto = async (idProd:number):Promise<ApiResponse<null>> => {
+export const eliminarProducto = async (idProd:number):Promise<ApiResponse<null>> => {
     //Delete Fisico
     // const {error:deleteError} = await supabase
     //     .from('productos')

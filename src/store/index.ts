@@ -3,7 +3,7 @@ import { Usuario } from '../interfaces/Auth'
 import { mensaje, Proveedor } from '../interfaces/Proveedor';
 import { crearProveedor, editarProveedor, eliminarProveedor, getProveedores } from '../services/ventas/proveedorService';
 import { ProductoPeticion, ProductoRespuesta } from '../interfaces/Producto';
-import { crearProducto, editarProducto, getProductos, getProductoxProv } from '../services/ventas/productoService';
+import { crearProducto, eliminarProducto, editarProducto, getProductos, getProductoxProv } from '../services/ventas/productoService';
 
 
 export const useprincipalStore = defineStore('principal', {
@@ -145,7 +145,7 @@ export const useprincipalStore = defineStore('principal', {
     async addProducto(newProduct: ProductoPeticion) {
       this.loading = true;
      const response = await crearProducto(newProduct);
-    if (!response.success) {
+    if (response.success) {
        this.msgProductos = {
            tipo: 'success',
            mensaje: 'Producto creado correctamente',
@@ -157,6 +157,24 @@ export const useprincipalStore = defineStore('principal', {
            mensaje: 'Error al agregar el producto',
          }
     }
+      this.loading = false;
+    },
+
+    async deleteProducto(idProd: number) {
+      this.loading = true;
+      const response = await eliminarProducto(idProd);
+      if (response.success) {
+        this.productos = this.productos.filter(prod => prod.producto_id !== idProd);
+        this.msgProductos = {
+          tipo: 'success',
+          mensaje: 'Producto eliminado correctamente',
+        };
+      } else {
+        this.msgProductos = {
+          tipo: 'error',
+          mensaje: response.error || 'Error al eliminar el producto',
+        }
+      }
       this.loading = false;
     },
 
