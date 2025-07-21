@@ -4,12 +4,14 @@
             v-show="showAlert" />
 
         <loadingSpinner :isLoading="isLoading" />
-        <Inventory :products="principalStore.productos" :totalProducts="principalStore.numeroProductos" 
+        <Inventory 
+        :products="principalStore.productos" 
+        :totalProducts="principalStore.numeroProductos" 
         @filtrar-product="filtrarProducts"
-            @editar-producto="abrirModalEditar"
-            @add-producto="abrirModalAdd"
-            @delete-producto="abrirModalDelete"
-            @cambiar-pagina="cambiarPagina" 
+        @editar-producto="abrirModalEditar"
+        @add-producto="abrirModalAdd"
+        @delete-producto="abrirModalDelete"
+        @cambiar-pagina="cambiarPagina" 
         />
         <ModalProductos 
         :visible="ModalVisible"
@@ -83,11 +85,24 @@ const idProductoEliminar = ref(0);
 
 const cerrarModal = () => {
     ModalVisible.value = false;
+    productoSeleccionado.value = {
+        producto_id: 0,
+        nombre: '',
+        descripcion: '',
+        codigo_barras: '',
+        stock: 0,
+        stock_minimo: 0,
+        precio_venta: 0,
+        idproveedor: '',
+        categorias: { categoria_id: 0, nombre: '' },
+        subtotal: 0,
+        cantidad: 0,
+     };
      if (principalStore.msgProductos) {
      alertType.value = principalStore.msgProductos.tipo; 
      showAlert.value = true;
      alertMessage.value = principalStore.msgProductos.mensaje;
-     principalStore.msgProveedores = null; // Limpiar error después de mostrar
+     principalStore.msgProductos = null; // Limpiar error después de mostrar
   }
 }
 
@@ -108,12 +123,17 @@ const abrirModalDelete = (productId: string) => {
 
 onMounted(() => {
     onLoadProducts('', 1, 50);
+    onLoadProveedores();
 });
 
 const onLoadProducts = async (busqueda: string, cuerrentPage: number, pageSize: number) => {
     isLoading.value = true
     await  principalStore.fetchProducts(busqueda, cuerrentPage, pageSize);
     isLoading.value = false
+}
+
+const onLoadProveedores = async ()=> {
+     await principalStore.fetchProveedores();
 }
 
 const onDeleteProduct = async () => {
@@ -124,7 +144,7 @@ const onDeleteProduct = async () => {
      alertType.value = principalStore.msgProductos.tipo; 
      showAlert.value = true;
      alertMessage.value = principalStore.msgProductos.mensaje;
-     principalStore.msgProveedores = null; // Limpiar error después de mostrar
+     principalStore.msgProductos = null; // Limpiar error después de mostrar
   }
 }
 

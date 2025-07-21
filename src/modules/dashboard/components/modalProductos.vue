@@ -168,13 +168,13 @@ const cerrarModal = () => {
   emit('cerrar');
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   const principalStore = useprincipalStore();
   if (esEdicion.value) {
-     principalStore.updateProducto(producto.value)
+     await principalStore.updateProducto(producto.value)
   } 
    else {
-    principalStore.addProducto(producto.value); 
+    await principalStore.addProducto(producto.value); 
   }
 
   principalStore.editingProduct = { 
