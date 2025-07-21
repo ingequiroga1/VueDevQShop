@@ -46,15 +46,13 @@
             <td class="px-4 py-2 flex gap-2">
               <button
                 @click="$emit('editar-producto',product)"
-                class="bg-primary-color text-white px-2 py-1 rounded hover:bg-blue-600"
               >
-                Editar
+                ✏️
               </button>
               <button
                 @click="$emit('delete-producto', product.producto_id)"
-                class="bg-secondary-color text-white px-2 py-1 rounded hover:bg-red-600"
               >
-                Eliminar
+                🗑️
               </button>
             </td>
           </tr>
