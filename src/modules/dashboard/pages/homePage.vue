@@ -2,8 +2,6 @@
      <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
         <!-- Título -->
         <h1 class="text-2xl font-bold mb-4 text-gray-800">Pantalla de Ventas</h1>
-        <h2 v-if="principalStore.user">{{ principalStore.user.nombre }}</h2>
-        <h2 v-if="principalStore.user">{{ principalStore.user.rol }}</h2>
         <form @submit.prevent="addProduct">
               <!-- Input para el código de barras -->
             <div class="mb-4">
@@ -298,7 +296,7 @@ const cerrarModal = () => {
 }
 
 const generarVenta = async () => {
-    if (principalStore.user) {
+      if (principalStore.user) {
          if(monto.value > totalVenta.value){
         const respuesta = await guardarVenta(totalVenta.value,'Efectivo',parseInt(principalStore.user.usuario_id, 10),'Completa',productos);
     if (respuesta.success) {
@@ -312,6 +310,11 @@ const generarVenta = async () => {
         alertType.value = 'warning';
         showAlert.value = true;
         alertMessage.value = 'El monto recibido es menor al total de la venta';
+    }   
+    }else{
+        alertType.value = 'error';
+        showAlert.value = true;
+        alertMessage.value = 'Debe iniciar sesión para generar una venta';
     }   
     }else{
         alertType.value = 'error';

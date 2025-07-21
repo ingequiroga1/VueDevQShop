@@ -24,20 +24,11 @@
         <RouterLink :to="{ name: 'proveedores' }"> Proveedores </RouterLink>
         <RouterLink :to="{ name: 'pedidos' }"> Pedidos </RouterLink>
         <RouterLink to="#"> Reportes </RouterLink>
-        <!-- <div class="flex items-center">
-          <button
-            class="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600"
-            @click="logout"
-            type="button"
-          >
-            SignOut
-          </button>
-        </div> -->
         
     <!-- Usuario (icono y menú desplegable) -->
-    <div class="relative" @click="toggleMenu">
+    <div class="relative" @click="toggleMenu" v-if="principalStore.user">
       <img
-        src="https://ui-avatars.com/api/?name=Juan+Quiroga&background=0D8ABC&color=fff"
+        :src=principalStore.getImagen
         alt="Avatar"
         class="w-10 h-10 rounded-full cursor-pointer border-2 border-white shadow"
       />
@@ -48,8 +39,8 @@
         class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50"
       >
         <div class="px-4 py-2">
-          <p class="text-sm font-semibold text-gray-800">Juan Quiroga</p>
-          <p class="text-xs text-gray-500">Administrador</p>
+          <p class="text-sm font-semibold text-gray-800">{{ principalStore.user.nombre }}</p>
+          <p class="text-xs text-gray-500">{{ principalStore.user.rol }}</p>
         </div>
         <hr class="my-1" />
         <button
@@ -77,10 +68,10 @@
         v-show="isMenuOpen"
         class="sm:hidden absolute top-14 left-0 w-full bg-white shadow-md py-2 space-y-2"
       >
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'home' }">Home</RouterLink>
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'ventas' }">Ventas</RouterLink>
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'inventario' }">Inventario</RouterLink>
-        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'pedidos' }">Pedidos</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'home' }" @click="closeMenu">Home</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'ventas' }" @click="closeMenu">Ventas</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'inventario' }" @click="closeMenu">Inventario</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'pedidos' }" @click="closeMenu">Pedidos</RouterLink>
         <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" to="#">Reportes</RouterLink>
         <button
           class="block w-full text-left px-4 py-2 text-white bg-red-500 rounded-md text-sm font-medium hover:bg-red-600"
@@ -97,20 +88,30 @@
 
 import { ref } from "vue";
 import {  signOut } from "../../../services/auth/authService.ts";
+import { useprincipalStore } from '../../../store';
+
 
 const logout = async() =>{
-  const error = signOut();
+  const error = await signOut();
+  console.log(error);
   if (!error) {
-    console.log('Sesión cerrada');
-    
+    window.location.href = '/login';
+  } else {
+    console.error('Error al cerrar sesión:', error);
   }
+
 }
 
 const isMenuOpen = ref(false);
 const menuAbierto = ref(false);
+const principalStore = useprincipalStore();
 
 function toggleMenu() {
   menuAbierto.value = !menuAbierto.value
+}
+
+function closeMenu() {
+  isMenuOpen.value = false;
 }
 
 </script>

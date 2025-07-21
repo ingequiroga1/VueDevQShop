@@ -43,11 +43,14 @@
        
           </form>
            <!-- Google Login Button -->
-         <button class="bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md py-2 px-4 w-full mt-4" @click="LoginGoogle">Login with Google</button>
+         <!-- <button class="bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md py-2 px-4 w-full mt-4" 
+         @click="LoginGoogle">
+         Login with Google
+        </button> -->
       <!-- Sign up  Link -->
-      <div class="mt-6 text-blue-500 text-center">
+      <!-- <div class="mt-6 text-blue-500 text-center">
         <RouterLink :to="{name: 'register'}" class="hover:underline">Registrarse</RouterLink>
-      </div>
+      </div> -->
     </template>
 
 
@@ -56,7 +59,8 @@
 
     import { ref,computed, onMounted } from 'vue';
     import { useRouter } from "vue-router";
-    import {checkSession, setSession, signInWithEmail, signInWithGoogle} from '../../../services/auth/authService.ts'
+    //import {checkSession, setSession, signInWithEmail, signInWithGoogle} from '../../../services/auth/authService.ts'
+    import {checkSession, setSession, signInWithEmail} from '../../../services/auth/authService.ts'
     import Alert from '../../common/components/alertComponent.vue'
     import { useprincipalStore } from '../../../store';
 
@@ -92,25 +96,25 @@
     onLogin();
    }
 
-   const LoginGoogle = async() =>{
-    try {
+  //  const LoginGoogle = async() =>{
+  //   try {
          
-          const result = await signInWithGoogle();
-          const error = result?.error;
+  //         const result = await signInWithGoogle();
+  //         const error = result?.error;
           
-          if (error) {
-           console.log('Error en el login con Google:', error);
-            alertType.value = 'error';
-            showAlert.value = true;
-            alertMessage.value = error.message;
-          }else{
-            const lastPath = localStorage.getItem('lastPath')??'/dashboard';
-            router.replace(lastPath);
-          }
-        } catch (error) {
-          console.error('Error en el login:', error);
-        }
-  }
+  //         if (error) {
+  //          console.log('Error en el login con Google:', error);
+  //           alertType.value = 'error';
+  //           showAlert.value = true;
+  //           alertMessage.value = error.message;
+  //         }else{
+  //           const lastPath = localStorage.getItem('lastPath')??'/dashboard';
+  //           router.replace(lastPath);
+  //         }
+  //       } catch (error) {
+  //         console.error('Error en el login:', error);
+  //       }
+  // }
 
   const validaSesion = async () => {
        const resp = await checkSession();
