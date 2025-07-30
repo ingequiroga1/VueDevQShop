@@ -316,11 +316,6 @@ const generarVenta = async () => {
         showAlert.value = true;
         alertMessage.value = 'Debe iniciar sesión para generar una venta';
     }   
-    }else{
-        alertType.value = 'error';
-        showAlert.value = true;
-        alertMessage.value = 'Debe iniciar sesión para generar una venta';
-    }
 }
 
 const imprimirPdf = () =>{

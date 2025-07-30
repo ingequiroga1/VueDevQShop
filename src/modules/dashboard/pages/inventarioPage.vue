@@ -81,6 +81,7 @@ const productoSeleccionado = ref<ProductoPeticion>({
     subtotal: 0,
     cantidad: 0,
 });
+
 const idProductoEliminar = ref(0);
 
 const cerrarModal = () => {

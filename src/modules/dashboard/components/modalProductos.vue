@@ -99,6 +99,9 @@ const props = defineProps({
       idproveedor: '',
       categorias: { categoria_id: 0, nombre: '' }
     })
+  },
+  proveedor:{
+    type: Object
   }
 });
 
@@ -141,6 +144,7 @@ const categorias = ref([
 ])
 
 watch(() => props.productoEditar, (nuevo:any) => {
+
   if (nuevo.producto_id > 0) {
     // Resetear el producto al abrir el modal
     producto.value = { ...nuevo };
@@ -162,6 +166,12 @@ watch(() => props.productoEditar, (nuevo:any) => {
     };
     esEdicion.value = false;
   }
+
+   if(props.proveedor){
+    producto.value.idproveedor = props.proveedor.id;
+  }
+  console.log('Producto a editar:', producto.value);
+  
 }, { immediate: true });
 
 const cerrarModal = () => {

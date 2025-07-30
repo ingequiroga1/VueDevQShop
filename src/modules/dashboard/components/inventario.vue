@@ -75,9 +75,6 @@
 import { ref, computed, watch } from 'vue'
 import { useprincipalStore } from '../../../store';
 
-import { ref, computed, watch } from 'vue'
-import { useprincipalStore } from '../../../store';
-
 
 defineProps({
   products: {
