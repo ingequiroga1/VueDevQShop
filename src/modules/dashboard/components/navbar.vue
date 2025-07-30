@@ -71,6 +71,7 @@
         <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'home' }" @click="closeMenu">Home</RouterLink>
         <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'ventas' }" @click="closeMenu">Ventas</RouterLink>
         <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'inventario' }" @click="closeMenu">Inventario</RouterLink>
+        <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'proveedores' }" @click="closeMenu">Proveedores </RouterLink>
         <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" :to="{ name: 'pedidos' }" @click="closeMenu">Pedidos</RouterLink>
         <RouterLink class="block px-4 py-2 text-gray-700 hover:bg-gray-200" to="#">Reportes</RouterLink>
         <button

@@ -19,34 +19,7 @@ const router = createRouter({
                      path: '/',
                      name: 'login',
                      component: LoginPage
-                     //component: () => import('../modules/auth/pages/loginPage.vue')
                  },
-                //  {
-                //     path: '/access_token=:access_token',
-                //     name: 'confirmar',
-                //     component: ConfirmacionPage
-                //     //   beforeEnter: (to:RouteLocationNormalizedGeneric, _:RouteLocationNormalizedLoadedGeneric,next:NavigationGuardNext) => {
-                //     //     // Extraer el parámetro "type" del hash
-                //     //     const params = new URLSearchParams(to.fullPath.slice(1));
-                //     //     const type = params.get('type') || '';
-                        
-                //     //      // Redirigir dependiendo del valor de type
-                //     //     switch (type) {
-                //     //         case 'recovery':
-                //     //             next('/changepass'); // Permite la navegación a "confirmar"
-                //     //             break;
-                //     //         case 'invite':
-                //     //             next('/invitation'); // Redirige a la página de invitación
-                //     //             break;
-                //     //         case 'register':
-                //     //             next('/register'); // Redirige a la página de registro
-                //     //             break;
-                //     //         default:
-                //     //             next('/error'); // Redirige a una página de error para casos no contemplados
-                //     //             break;
-                //     //     }
-                //     //   }
-                // },
                 {
                     path: '/register',
                     name: 'register',
@@ -100,9 +73,6 @@ const router = createRouter({
                     name: 'detalleProveedor',
                     component: () => import('../modules/dashboard/pages/detalleProv.vue')
                 },
-                { path: '/nuevo', name: 'nuevo-proveedor',
-                    component: () => import('../modules/dashboard/pages/nuevoProvPage.vue')
-                }
             ]
         },
          //Change pass page
