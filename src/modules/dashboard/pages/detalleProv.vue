@@ -10,7 +10,7 @@
       <h3 class="text-xl font-semibold text-gray-800 mb-4">Información del proveedor</h3>
       <p class="text-gray-700"><strong>ID:</strong> {{ $route.params.id }}</p>
       <p class="text-gray-700"><strong>Nombre:</strong> {{ proveedorSelecionado.nombre }}</p>
-      <p class="text-gray-700"><strong>Empresa:</strong> {{ proveedorSelecionado.empresa }}</p>
+      <p class="text-gray-700 text-xl"><strong>Empresa:</strong> {{ proveedorSelecionado.empresa }}</p>
     </div>
 
     <!-- Encabezado productos -->
@@ -33,7 +33,7 @@
         </div>
         <div class="flex gap-2">
           <button @click="abrirModalEditar(product)"
-            class="flex-1 bg-blue-500 text-white py-1 rounded-md hover:bg-blue-600 transition">
+            class="flex-1 bg-primary-color text-white py-1 rounded-md hover:bg-secondary-color transition">
             Editar
           </button>
           <button @click="abrirModalDelete(String(product.producto_id))"
