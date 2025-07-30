@@ -58,7 +58,7 @@
                                 @click="disminuirProducto(producto)"
                                 class="text-red-500 hover:text-red-700 focus:outline-none text-xl" 
                                 >
-                                <font-awesome-icon :icon="['fas', 'minus']" />
+                                🗑️
                             </button>
                         </td>
                      </tr>
@@ -91,7 +91,8 @@
                                 @click="disminuirProducto(producto)"
                                 class="text-red-500 hover:text-red-700 focus:outline-none text-xl" 
                                 >
-                                <font-awesome-icon :icon="['fas', 'minus']" />
+                                🗑️
+                              
                 </button>
                 </div>
             </div>

@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">Gestión de Inventario</h2>
       <button @click="$emit('add-producto')" class="bg-primary-color text-white px-4 py-2 rounded hover:bg-blue-700">
-        Agregar Producto
+        + Agregar Producto
       </button>
     </div>
     <div class="mb-4">
