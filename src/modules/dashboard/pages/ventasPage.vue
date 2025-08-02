@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h1>Ventas</h1>
         <ventaBuscar @search="onLoadVentas" />
         <tablaVentas :ventas="ventas"/>
     </div>

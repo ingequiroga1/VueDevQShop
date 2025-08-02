@@ -226,6 +226,15 @@ export const useprincipalStore = defineStore("principal", {
       }
     },
 
+    sanitizarProducto (producto: ProductoPeticion): ProductoPeticion {
+      producto.nombre = producto.nombre
+      .trim();
+      producto.codigo_barras = producto.codigo_barras
+      .trim();
+
+      return producto;
+    },
+
     //User
     setUser(userData: any) {
       this.user = userData;

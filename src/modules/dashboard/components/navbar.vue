@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between w-full">
       <!-- Logo -->
       <a class="flex items-center gap-2 font-semibold" href="#">
-        <img alt="Vue logo" class="logo" src="../../../assets/vue.svg" width="40" height="40" />
+        <img alt="Vue logo" class="logo" src="../../../assets/xmart.svg" />
       </a>
 
       <!-- Botón hamburguesa -->
@@ -119,6 +119,7 @@ function closeMenu() {
 
 <style scoped>
 .logo {
+  height: 8rem;
   display: block;
 }
 

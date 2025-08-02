@@ -8,7 +8,7 @@ import { checkSession } from './services/auth/authService.ts';
 
 
 const validaSesion = async () => {
-  const resp = await checkSession();
+  await checkSession();
  };
 
  onMounted(() => {
